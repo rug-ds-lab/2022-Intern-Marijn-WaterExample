@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 wntr = "*"
+kafka-python = "*"
 
 [dev-packages]
 
