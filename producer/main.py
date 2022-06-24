@@ -1,16 +1,16 @@
 from kafka import KafkaProducer
-from time import sleep
+
+KAFKA_SERVER = 'kafka:9092'
 
 
 def run():
-    kafka_servers = ['kafka:9093']
-    print('Attempting to connect to: ', kafka_servers)
-    producer = KafkaProducer(bootstrap_servers=kafka_servers)
-    print('Successfully connected')
-    for _ in range(100):
-        producer.send('dma_data', b'test')
+    producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
+    print('Producer started')
+
+    for _ in range(0, 20):
+        producer.send('dma-data', b'message')
+        producer.flush()
 
 
 if __name__ == '__main__':
-    sleep(2)
     run()
