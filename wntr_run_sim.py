@@ -28,7 +28,7 @@ def main():
     a csv.
     :return:
     """
-    wn = wntr.network.WaterNetworkModel('network_data/Net3.inp')
+    wn = wntr.network.WaterNetworkModel('network_input_files/Hanoi_CMH.inp')
     wntr.graphics.plot_network(wn, title=wn.name)
     plt.show()
 

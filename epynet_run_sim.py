@@ -16,7 +16,7 @@ def main():
     At the end some sample data is exported to a csv.
     :return:
     """
-    network = Network('network_data/Net3.inp')
+    network = Network('network_input_files/Hanoi_CMH.inp')
     network.run()
 
     pressure_node_2 = network.nodes['2'].pressure
