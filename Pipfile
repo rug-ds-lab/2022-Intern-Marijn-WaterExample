@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 wntr = "*"
 kafka-python = "*"
+influxdb = "*"
+influxdb-client = "*"
 
 [dev-packages]
 

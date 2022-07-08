@@ -21,9 +21,12 @@ services:
   producer:
     build: ./producer
     restart: always
+    volumes:
+      - ./dataset/:/app/dataset
     depends_on:
       - kafka
     environment:
+      DATA_PATH: "dataset/"
       PYTHONUNBUFFERED: 1
   pipeline0:
     build: ./pipeline0
@@ -41,3 +44,16 @@ services:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
       - KAFKA_CLUSTERS_0_ZOOKEEPER=localhost:2181
+  influxdb:
+    image: docker.io/bitnami/influxdb:2
+    ports:
+      - "8086:8086"
+      - "8088:8088"
+    environment:
+      - INFLUXDB_ADMIN_USER_PASSWORD=bitnami123
+      - INFLUXDB_ADMIN_USER_TOKEN=token
+    volumes:
+      - influxdb_data:/bitnami/influxdb
+volumes:
+  influxdb_data:
+    driver: local
