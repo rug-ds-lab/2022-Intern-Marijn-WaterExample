@@ -43,6 +43,7 @@ def run(network_path, data_path):
         else:
             cumulative_correlation.append(0)
 
+    plt.title(data_path + ': Filtered signal')
     plt.plot(cumulative_correlation)
     plt.show()
 
@@ -110,7 +111,7 @@ def run_scenario(input_network_path, leak_scenario=False, node_name=None):
 
     if leak_scenario is True:
         node = wn.get_node(node_name)
-        node.add_leak(wn, area=0.05, start_time=0,
+        node.add_leak(wn, area=0.5, start_time=0,
                       end_time=wn.options.time.duration - 3 * wn.options.time.hydraulic_timestep)
 
     sim = wntr.sim.WNTRSimulator(wn)
