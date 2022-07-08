@@ -29,7 +29,7 @@ def run(network_path, data_path):
             leak_detection_fsm_matrix(p, s_matrix, no_leak_signature)
         )
 
-    with open('model_data/correlation_signal.pkl', 'wb') as f:
+    with open('dataset/output_data/model_data/correlation_signal.pkl', 'wb') as f:
         pickle.dump(correlation_signal, f)
 
     w = 40
@@ -125,4 +125,4 @@ def run_scenario(input_network_path, leak_scenario=False, node_name=None):
 
 
 if __name__ == '__main__':
-    run('network_input_files/Hanoi_CMH.inp', 'dataset/Scenario-13/Pressures')
+    run('dataset/network_input_files/Hanoi_CMH.inp', 'dataset/leakdb/Scenario-13/Pressures')

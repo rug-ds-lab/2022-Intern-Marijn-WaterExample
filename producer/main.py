@@ -30,7 +30,7 @@ def run():
 
     for i in pressures.index:
         current_pressure = pressures.iloc[i].to_json()
-        producer.send('dma-data', current_pressure.encode('utf-8'))
+        producer.send('dma-epynet_data', current_pressure.encode('utf-8'))
         producer.flush()
         sleep(3)
 

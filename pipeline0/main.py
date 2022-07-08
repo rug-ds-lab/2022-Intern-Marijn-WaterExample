@@ -7,7 +7,7 @@ KAFKA_SERVER = 'kafka:9092'
 
 
 def run():
-    consumer = KafkaConsumer('dma-data', bootstrap_servers=KAFKA_SERVER)
+    consumer = KafkaConsumer('dma-epynet_data', bootstrap_servers=KAFKA_SERVER)
     print('pipeline0 started')
 
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')

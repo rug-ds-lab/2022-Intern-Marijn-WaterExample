@@ -13,7 +13,7 @@ def main():
     """
     This method now runs a quick example simulation to show how we can generate a dataset using the Net3.inp sample
     network from WNTR. It shows a plot of the progression of pressure in one of the nodes throughout the simulation.
-    At the end some sample data is exported to a csv.
+    At the end some sample epynet_data is exported to a csv.
     :return:
     """
     network = Network('network_input_files/Hanoi_CMH.inp')
@@ -28,7 +28,7 @@ def main():
 
     flow_pipe_20 = network.pipes['20'].flow
 
-    with open('output_data/epynet_sim_data.csv', 'w') as sim_data:
+    with open('dataset/output_data/epynet_sim_data.csv', 'w') as sim_data:
         writer = csv.writer(sim_data)
         writer.writerow(['pressure_node_2', 'flow_pipe_20'])
         for (p, f) in zip(pressure_node_2, flow_pipe_20):
