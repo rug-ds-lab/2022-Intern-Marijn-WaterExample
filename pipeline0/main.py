@@ -18,7 +18,7 @@ def run():
         print(measurement)
 
         p = Point('measurement').tag('node', '2').field('pressure', measurement['2'])
-        write_api.write(bucket='primary', record=p)
+        # write_api.write(bucket='primary', record=p)
 
 
 if __name__ == '__main__':
