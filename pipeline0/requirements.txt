@@ -1,2 +1,4 @@
 kafka-python
 influxdb-client
+pandas
+numpy

@@ -60,6 +60,7 @@ def run():
                 .time(unix_time, write_precision='s')
             write_api.write(bucket='primary', record=p)
 
+        current_pressure['time'] = unix_time
         current_pressure_json = current_pressure.to_json()
         producer.send('dma-epynet_data', current_pressure_json.encode('utf-8'))
         producer.flush()
