@@ -54,6 +54,18 @@ services:
       - INFLUXDB_ADMIN_USER_TOKEN=token
     volumes:
       - influxdb_data:/bitnami/influxdb
+  grafana:
+    image: docker.io/bitnami/grafana:8
+    ports:
+      - '3000:3000'
+    environment:
+      - 'GF_SECURITY_ADMIN_PASSWORD=bitnami'
+    volumes:
+      - grafana_data:/opt/bitnami/grafana/data
+      - ./grafana/conf/provisioning:/opt/bitnami/grafana/conf/provisioning
+      - ./grafana/dashboards:/opt/bitnami/grafana/dashboards
 volumes:
   influxdb_data:
+    driver: local
+  grafana_data:
     driver: local
