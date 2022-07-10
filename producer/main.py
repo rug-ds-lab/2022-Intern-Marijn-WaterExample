@@ -1,5 +1,3 @@
-import time
-
 from kafka import KafkaProducer
 import pandas as pd
 import glob
@@ -51,7 +49,7 @@ def run():
             .fromisoformat(timestamps.iloc[i]['Timestamp'])\
             .timetuple()\
 
-        unix_time = int(time.mktime(current_time))
+        unix_time = int(mktime(current_time))
 
         for node in current_pressure.index:
             p = Point('measurement')\
