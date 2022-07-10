@@ -26,7 +26,6 @@ services:
     depends_on:
       - kafka
     environment:
-      DATA_PATH: "dataset/leakdb/"
       PYTHONUNBUFFERED: 1
   pipeline0:
     build: ./pipeline0

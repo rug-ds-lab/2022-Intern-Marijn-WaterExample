@@ -8,6 +8,7 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from datetime import datetime
 from time import mktime
+from configparser import ConfigParser
 
 KAFKA_SERVER = 'kafka:9092'
 
@@ -25,17 +26,25 @@ def read_pressure_as_matrix(folder_path):
 def run():
     producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
     print('Producer started')
-    data_path = os.environ.get('DATA_PATH')
-    scenario = 'Scenario-13/'
-    values = 'Pressures'
-    print(data_path + scenario)
-    pressures = read_pressure_as_matrix(folder_path=data_path + scenario + values)
+
+    config = ConfigParser()
+    config.read('config.ini')
+    scenario_path = config['DEFAULT']['scenario_path']
+    network_property = config['DEFAULT']['network_property']
+    start_time = int(config['DEFAULT']['start_time'])
+
+    data_path = os.path.join(scenario_path, network_property)
+
+    pressures = read_pressure_as_matrix(folder_path=data_path)
     print(pressures)
-    timestamps = pd.read_csv(data_path + scenario + 'Timestamps.csv')
+
+    timestamp_path = os.path.join(scenario_path, 'Timestamps.csv')
+
+    timestamps = pd.read_csv(timestamp_path)
 
     # Scenario 13: Leak Start is at 6587
-    pressures = pressures.iloc[6500:, :].reset_index(drop=True)
-    timestamps = timestamps.iloc[6500:, :].reset_index(drop=True)
+    pressures = pressures.iloc[start_time:, :].reset_index(drop=True)
+    timestamps = timestamps.iloc[start_time:, :].reset_index(drop=True)
 
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
     write_api = client.write_api(write_options=SYNCHRONOUS)

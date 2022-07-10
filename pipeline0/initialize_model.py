@@ -48,8 +48,9 @@ def generate_sensitivity_matrix(network_path, no_leak_signature):
 
 def run():
     config = ConfigParser()
-    config.read('../config.ini')
+    config.read('config.ini')
     input_network_path = config['DEFAULT']['input_network_path']
+
     no_leak_signature = generate_signature(input_network_path)
     sensitivity_matrix = generate_sensitivity_matrix(input_network_path, no_leak_signature)
 
