@@ -28,6 +28,19 @@
   "liveNow": false,
   "panels": [
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 14,
+      "panels": [],
+      "title": "General Network Data",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "influxdb",
         "uid": "P951FEA4DE68E13C5"
@@ -83,10 +96,109 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 14,
-        "w": 12,
+        "h": 12,
+        "w": 24,
         "x": 0,
-        "y": 0
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P951FEA4DE68E13C5"
+          },
+          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r.node != \"1\" and r._field == \"pressure\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Node Pressure",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 12,
+      "panels": [],
+      "title": "Pipeline Data",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P951FEA4DE68E13C5"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 14
       },
       "id": 6,
       "options": {
@@ -106,7 +218,7 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"fsm_correlation\" and r.node != \"1\")",
+          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"fsm_corr\" and r.node != \"1\")",
           "refId": "A"
         }
       ],
@@ -169,12 +281,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 14,
-        "w": 12,
-        "x": 12,
-        "y": 0
+        "h": 13,
+        "w": 24,
+        "x": 0,
+        "y": 27
       },
-      "id": 2,
+      "id": 8,
       "options": {
         "legend": {
           "calcs": [],
@@ -192,12 +304,25 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r.node != \"1\" and r._field == \"pressure\")",
+          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"leak_detection\")",
           "refId": "A"
         }
       ],
-      "title": "Node Pressure",
+      "title": "pipeline1: Random Forest Clf",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 16,
+      "panels": [],
+      "title": "Examples",
+      "type": "row"
     },
     {
       "datasource": {
@@ -258,7 +383,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 14
+        "y": 41
       },
       "id": 4,
       "options": {
@@ -287,12 +412,25 @@
             "uid": "P951FEA4DE68E13C5"
           },
           "hide": false,
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"fsm_correlation\" and r.node == \"21\")",
+          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"fsm_corr\" and r.node == \"21\")",
           "refId": "B"
         }
       ],
       "title": "Node 2: Normalized pressure and FSM Correlation",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 49
+      },
+      "id": 10,
+      "panels": [],
+      "title": "Row title",
+      "type": "row"
     }
   ],
   "refresh": false,
@@ -303,8 +441,8 @@
     "list": []
   },
   "time": {
-    "from": "2017-05-05T03:17:43.769Z",
-    "to": "2017-06-14T11:27:42.991Z"
+    "from": "2017-05-16T00:17:43.986Z",
+    "to": "2017-05-19T06:47:46.725Z"
   },
   "timepicker": {},
   "timezone": "",

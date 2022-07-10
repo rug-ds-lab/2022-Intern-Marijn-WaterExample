@@ -14,3 +14,8 @@ InfluxDB can also be accessed directly at:
 ```shell
 http://localhost:8086
 ```
+
+### Additional notes
+
+Currently, the `pipeline1` container cannot run after simply cloning from here since it relies on a model file 
+which cannot be committed here due to its size

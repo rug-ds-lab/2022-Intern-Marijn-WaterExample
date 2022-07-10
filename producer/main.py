@@ -43,7 +43,6 @@ def run():
     for i in pressures.index:
         current_pressure = pressures.iloc[i]
         print(timestamps.iloc[i])
-        print(datetime.fromisoformat(timestamps.iloc[i]['Timestamp']))
 
         current_time = datetime\
             .fromisoformat(timestamps.iloc[i]['Timestamp'])\

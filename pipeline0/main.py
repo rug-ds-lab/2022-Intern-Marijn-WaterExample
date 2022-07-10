@@ -40,9 +40,9 @@ def run():
         fsm_matrix = generate_fsm_matrix(sensitivity_matrix, no_leak_signature.T, current_pressure)
 
         for i in range(0, len(fsm_matrix)):
-            p = Point('current_pressure')\
+            p = Point('pipeline0')\
                 .tag('node', str(i+2))\
-                .field('fsm_correlation', fsm_matrix[i][0][1])\
+                .field('fsm_corr', fsm_matrix[i][0][1])\
                 .time(time, write_precision='s')
             write_api.write(bucket='primary', record=p)
 
