@@ -14,7 +14,7 @@ KAFKA_SERVER = 'kafka:9092'
 
 
 def read_data_as_matrix(folder_path, network_property):
-    pressures = pd.DataFrame()
+    network_data = pd.DataFrame()
 
     if network_property == 'Pressures':
         file_name = 'Node_*.csv'
@@ -27,11 +27,11 @@ def read_data_as_matrix(folder_path, network_property):
 
     print(data_path)
 
-    for link_path in glob.glob(data_path):
-        node_pressure = pd.read_csv(link_path)['Value']
-        node_n = int(re.sub('\D', '', os.path.basename(link_path)))
-        pressures[node_n] = node_pressure
-    return pressures.reindex(sorted(pressures.columns), axis=1)
+    for d in glob.glob(data_path):
+        node_pressure = pd.read_csv(d)['Value']
+        node_n = int(re.sub('\D', '', os.path.basename(d)))
+        network_data[node_n] = node_pressure
+    return network_data.reindex(sorted(network_data.columns), axis=1)
 
 
 def run():
