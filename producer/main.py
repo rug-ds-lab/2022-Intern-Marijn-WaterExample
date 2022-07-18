@@ -85,10 +85,18 @@ def run():
                 .time(unix_time, write_precision='s')
             write_api.write(bucket='primary', record=p)
 
-        current_pressure['time'] = unix_time
-        current_pressure_json = current_pressure.to_json()
+        pressure_data = current_pressure
+        pressure_data['time'] = unix_time
+        pressure_data_json = pressure_data.to_json()
 
-        producer.send('dma-epynet_data', current_pressure_json.encode('utf-8'))
+        producer.send('pressure-data', pressure_data_json.encode('utf-8'))
+
+        flow_data = current_flow
+        flow_data['time'] = unix_time
+        flow_data_json = flow_data.to_json()
+
+        producer.send('flow-data', flow_data_json.encode('utf-8'))
+
         producer.flush()
         sleep(0.5)
 

@@ -22,7 +22,7 @@ def generate_fsm_matrix(sensitivity_matrix, no_leak_signature, current_pressures
 
 
 def run():
-    consumer = KafkaConsumer('dma-epynet_data', bootstrap_servers=KAFKA_SERVER)
+    consumer = KafkaConsumer('pressure-data', bootstrap_servers=KAFKA_SERVER)
     print('pipeline0 started')
 
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
