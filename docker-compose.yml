@@ -41,6 +41,11 @@ services:
       - kafka
     environment:
       PYTHONUNBUFFERED: 1
+  pipeline2:
+    build: ./pipeline2
+    restart: always
+    environment:
+      PYTHONUNBUFFERED: 1
   kafka-ui:
     image: provectuslabs/kafka-ui
     ports:
