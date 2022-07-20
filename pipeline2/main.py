@@ -9,6 +9,7 @@ import pickle
 import json
 import pandas as pd
 import numpy as np
+from datetime import datetime
 
 KAFKA_SERVER = 'kafka:9092'
 
@@ -21,8 +22,6 @@ def run():
     write_api = client.write_api(write_options=SYNCHRONOUS)
     query_api = client.query_api()
 
-    # tables = query_api('')
-
     with open('preprocessing/standard_scaler.pkl', 'rb') as f:
         # This standard scaler is fitted to training data only
         standard_scaler = pickle.load(f)
@@ -33,22 +32,37 @@ def run():
 
     model = load_model('model')
 
-    last_n_values = []
     sequence_length = 5
+
+    # This is the amount of time steps before we are at the same time of the day again
+    time_interval = 48
 
     for msg in consumer:
         time = int(json.loads(msg.value.decode('utf-8'))['time'])
         current_flow = pd.Series(json.loads(msg.value.decode('utf-8'))).drop(labels=['time']).values
 
-        last_n_values.append(current_flow)
+        query = f' from(bucket:"primary") ' \
+                f'|> range(start: {time-sequence_length*24*60*60}, stop: {time})' \
+                f'|> filter(fn: (r) => r._field == "flow")' \
+                f'|> group(columns: ["link"], mode: "by")'
 
-        if len(last_n_values) > sequence_length:
-            last_n_values.pop(0)
+        result = query_api.query_data_frame(org='primary', query=query)
+        flow_as_matrix = result.pivot(index='_time', columns='link', values='_value')
+        flow_as_matrix.columns = flow_as_matrix.columns.astype('int64')
+        flow_as_matrix_sorted = flow_as_matrix.reindex(columns=flow_as_matrix.columns.sort_values())
 
-        if len(last_n_values) == sequence_length:
+        print(flow_as_matrix_sorted)
+
+        if flow_as_matrix.shape[0] == sequence_length * time_interval:
+            last_n_values = flow_as_matrix_sorted.loc[
+                (flow_as_matrix.index.hour == datetime.fromtimestamp(time).hour)
+                & (flow_as_matrix.index.minute == datetime.fromtimestamp(time).minute)]
+
+            print(f'Current time: {datetime.fromtimestamp(time)}')
+            print(last_n_values)
+
             last_n_values_scaled = standard_scaler.transform(last_n_values)
             y_pred = model.predict(np.array([last_n_values_scaled]))
-            print(last_n_values_scaled)
 
             y_pred_unscaled = standard_scaler.inverse_transform(y_pred)
             y_pred_upper_threshold = standard_scaler.inverse_transform([y_pred[0] + 1.96 * rmsfe_vector])

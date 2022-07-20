@@ -69,7 +69,7 @@ def run():
 
         unix_time = int(mktime(current_time))
 
-        for node in current_pressure.index:
+        for node in current_pressure.index.astype('int64').sort_values():
             p = Point('measurement')\
                 .tag('node', node)\
                 .field('pressure', current_pressure[node])\
@@ -78,7 +78,9 @@ def run():
 
         current_flow = flows.iloc[f]
 
-        for link in current_flow.index:
+        print(current_flow.index.astype('int64').sort_values())
+
+        for link in current_flow.index.astype('int64').sort_values():
             p = Point('measurement') \
                 .tag('link', link) \
                 .field('flow', current_flow[link]) \
