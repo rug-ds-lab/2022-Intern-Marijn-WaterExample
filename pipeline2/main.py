@@ -30,7 +30,16 @@ def run():
         # The RMSFE values here are calculated based on validation set performance and are used to calculate the CI
         rmsfe_vector = pickle.load(f)
 
-    model = load_model('model')
+    model = Sequential()
+    model.add(InputLayer((5, 34)))
+    model.add(LSTM(128, return_sequences=True))
+    model.add(LSTM(64, return_sequences=True))
+    model.add(LSTM(32))
+    model.add(Dense(34, 'linear'))
+
+    model.summary()
+
+    model.load_weights('model0/')
 
     sequence_length = 5
 
@@ -67,6 +76,9 @@ def run():
             y_pred_unscaled = standard_scaler.inverse_transform(y_pred)
             y_pred_upper_threshold = standard_scaler.inverse_transform([y_pred[0] + 1.96 * rmsfe_vector])
             y_pred_lower_threshold = standard_scaler.inverse_transform([y_pred[0] - 1.96 * rmsfe_vector])
+
+            print("Y_PRED: ")
+            print(y_pred)
 
             for link_n, flow_value in enumerate(y_pred_unscaled[0]):
                 p = Point('pipeline2') \
