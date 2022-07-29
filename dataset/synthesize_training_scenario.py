@@ -44,8 +44,8 @@ def run():
     pressure_train, pressure_val, pressure_test = train_val_test_split(pressure, train_i, val_i)
     flow_train, flow_val, flow_test = train_val_test_split(flow, train_i, val_i)
 
-    train_val_test_save('synth_dataset/pressure/', pressure_train, pressure_val, pressure_test)
-    train_val_test_save('synth_dataset/flow/', flow_train, flow_val, flow_test)
+    train_val_test_save('synth_dataset/train/pressure/', pressure_train, pressure_val, pressure_test)
+    train_val_test_save('synth_dataset/train/flow/', flow_train, flow_val, flow_test)
 
     plt.plot(results.link['flowrate'].loc[:, '21'] * 3600)
     plt.show()

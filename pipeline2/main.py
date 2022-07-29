@@ -39,7 +39,7 @@ def run():
 
     model.summary()
 
-    model.load_weights('model0/')
+    model.load_weights('model/')
 
     sequence_length = 5
 
