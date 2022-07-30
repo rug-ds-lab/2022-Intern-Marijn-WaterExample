@@ -24,6 +24,7 @@ services:
     volumes:
       - ./dataset/:/app/dataset
       - ./config.ini:/app/config.ini
+      -  /wdn_input_files/:/app/wdn_input_files
     depends_on:
       - kafka
       - influxdb
