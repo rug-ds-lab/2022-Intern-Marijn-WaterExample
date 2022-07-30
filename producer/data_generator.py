@@ -1,8 +1,7 @@
 import os.path
 
-import wntr
-import pickle
 import matplotlib.pyplot as plt
+import wntr
 from configparser import ConfigParser
 import pandas as pd
 import numpy as np
@@ -62,14 +61,13 @@ def generate_scenario(is_leak_scenario=False, node_name=None, scenario_name='sce
     config = ConfigParser()
     config.read('../config.ini')
 
-    simulation_start_time = '2017-01-01 00:00:00'
-
-    train_start = '2017-01-01 00:00:00'
-    train_end = '2017-08-31 23:30:00'
-    val_start = '2017-09-01 00:00:00'
-    val_end = '2017-10-31 23:30:00'
-    test_start = '2017-11-1 00:00:00'
-    test_end = '2017-12-31 23:30:00'
+    simulation_start_time = config.get('producer', 'simulation_start_time')
+    train_start = config.get('producer', 'train_start')
+    train_end = config.get('producer', 'train_end')
+    val_start = config.get('producer', 'val_start')
+    val_end = config.get('producer', 'val_end')
+    test_start = config.get('producer', 'test_start')
+    test_end = config.get('producer', 'test_end')
 
     # We load an input file here which sets many things up already, but most importantly the demand pattern
     demand_inp_file_path = config.get('producer', 'demand_input_file_path')
@@ -151,6 +149,9 @@ def generate_scenario(is_leak_scenario=False, node_name=None, scenario_name='sce
             train_pressure,
             test_pressure
         )
+
+    plt.plot(test_pressure[2])
+    plt.show()
 
 
 if __name__ == '__main__':
