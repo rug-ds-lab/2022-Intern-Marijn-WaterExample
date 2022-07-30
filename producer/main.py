@@ -40,8 +40,8 @@ def run():
 
     config = ConfigParser()
     config.read('config.ini')
-    scenario_path = config['DEFAULT']['scenario_path']
-    start_time = int(config['DEFAULT']['start_time'])
+    scenario_path = config['producer']['scenario_path']
+    start_time = int(config['producer']['start_time'])
 
     pressures = read_data_as_matrix(folder_path=scenario_path, network_property='Pressures')
     flows = read_data_as_matrix(folder_path=scenario_path, network_property='Flows')

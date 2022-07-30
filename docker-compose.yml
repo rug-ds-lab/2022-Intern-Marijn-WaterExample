@@ -23,15 +23,24 @@ services:
     restart: always
     volumes:
       - ./dataset/:/app/dataset
+      - ./config.ini:/app/config.ini
     depends_on:
       - kafka
+      - influxdb
     environment:
       PYTHONUNBUFFERED: 1
   pipeline0:
     build: ./pipeline0
     restart: always
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./wdn_input_files/:/app/wdn_input_files
+      - ./pipeline0/model/:/app/model
     depends_on:
       - kafka
+      - producer
+      - influxdb
+      - grafana
     environment:
       PYTHONUNBUFFERED: 1
   pipeline1:
@@ -39,11 +48,17 @@ services:
     restart: always
     depends_on:
       - kafka
+      - producer
+      - influxdb
     environment:
       PYTHONUNBUFFERED: 1
   pipeline2:
     build: ./pipeline2
     restart: always
+    depends_on:
+      - kafka
+      - producer
+      - influxdb
     environment:
       PYTHONUNBUFFERED: 1
   kafka-ui:

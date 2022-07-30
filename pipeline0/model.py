@@ -2,7 +2,27 @@ import wntr
 import pandas as pd
 from configparser import ConfigParser
 import pickle
-import os
+import numpy as np
+
+
+def generate_binary_leak_prediction(fsm_matrix, threshold):
+    corr_sig = [c[0][1] for c in fsm_matrix]
+    for node_pressure_correlation in corr_sig:
+        if node_pressure_correlation > threshold:
+            return True
+    return False
+
+
+def compute_correlation(v1, v2):
+    correlation_matrix = np.corrcoef(v1, v2)
+    return correlation_matrix
+
+
+def generate_fsm_matrix(sensitivity_matrix, no_leak_signature, current_pressures):
+    residual_vector = current_pressures - no_leak_signature
+    fsm_matrix = \
+        [compute_correlation(leak_signature.T, residual_vector) for leak_signature in sensitivity_matrix.values]
+    return fsm_matrix
 
 
 def generate_signature(input_network_path, leak_scenario=False, node_name=None):
@@ -46,20 +66,27 @@ def generate_sensitivity_matrix(network_path, no_leak_signature):
     return sensitivity_matrix
 
 
-def run():
+def initialize_model():
     config = ConfigParser()
     config.read('config.ini')
-    input_network_path = config['DEFAULT']['input_network_path']
+    wdn_input_file_name = config['global']['wdn_input_file_name']
+    input_network_path = f'wdn_input_files/{wdn_input_file_name}'
 
     no_leak_signature = generate_signature(input_network_path)
     sensitivity_matrix = generate_sensitivity_matrix(input_network_path, no_leak_signature)
 
     with open('model/sensitivity_matrix.pkl', 'wb') as f:
         pickle.dump(sensitivity_matrix, f)
+        print('write s_matrix')
 
     with open('model/no_leak_signature.pkl', 'wb') as f:
         pickle.dump(no_leak_signature.iloc[1:], f)
 
 
-if __name__ == '__main__':
-    run()
+def load_model():
+    with open('model/sensitivity_matrix.pkl', 'rb') as f:
+        sensitivity_matrix = pickle.load(f)
+
+    with open('model/no_leak_signature.pkl', 'rb') as f:
+        no_leak_signature = pickle.load(f)
+    return sensitivity_matrix, no_leak_signature
