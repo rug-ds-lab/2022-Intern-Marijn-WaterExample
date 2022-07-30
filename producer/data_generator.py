@@ -1,5 +1,4 @@
 import os.path
-
 import matplotlib.pyplot as plt
 import wntr
 from configparser import ConfigParser
@@ -48,18 +47,26 @@ def generate_random_leak_time(simulation_start_time, test_start, test_end, hydra
     timestamps_df = timestamps.to_frame()
     timestamps_df['ix'] = range(0, len(timestamps_df))
     possible_leak_times = timestamps_df[test_start:test_end]
-    leak_start_ix = possible_leak_times.sample()['ix'].iloc[0]
+    leak_start = possible_leak_times.sample()
+    leak_start_ix = leak_start['ix'].iloc[0]
+    leak_start_datetime = leak_start.index
     leak_end_ix = np.random.randint(low=leak_start_ix, high=len(timestamps_df))
 
     leak_start_time = leak_start_ix * hydraulic_timestep
     leak_end_time = leak_end_ix * hydraulic_timestep
 
-    return leak_start_time, leak_end_time
+    return leak_start_time, leak_end_time, leak_start_datetime, leak_start_ix, leak_end_ix
 
 
-def generate_scenario(is_leak_scenario=False, node_name=None, scenario_name='scenario'):
+def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='scenario'):
+    leak_start_time = 0
+    leak_end_time = 0
+
     config = ConfigParser()
     config.read('../config.ini')
+
+    parameters = ConfigParser()
+    parameters['producer'] = config['producer']
 
     simulation_start_time = config.get('producer', 'simulation_start_time')
     train_start = config.get('producer', 'train_start')
@@ -68,6 +75,7 @@ def generate_scenario(is_leak_scenario=False, node_name=None, scenario_name='sce
     val_end = config.get('producer', 'val_end')
     test_start = config.get('producer', 'test_start')
     test_end = config.get('producer', 'test_end')
+    scenario_name = config.get('global', 'scenario_name')
 
     # We load an input file here which sets many things up already, but most importantly the demand pattern
     demand_inp_file_path = config.get('producer', 'demand_input_file_path')
@@ -75,20 +83,26 @@ def generate_scenario(is_leak_scenario=False, node_name=None, scenario_name='sce
 
     wn = wntr.network.WaterNetworkModel('../' + demand_inp_file_path)
 
-    if is_leak_scenario:
+    if is_leak_scenario and leak_node:
         leak_diameter = np.random.uniform(0.02, 0.2)
         leak_area = 3.14159 * (leak_diameter / 2) ** 2
 
-        leak_start_time, leak_end_time = generate_random_leak_time(
+        leak_start_time, leak_end_time, leak_start_datetime, leak_start_ix, leak_end_ix = generate_random_leak_time(
             simulation_start_time,
             test_start,
             test_end,
             wn.options.time.hydraulic_timestep
         )
 
-        if node_name:
-            node = wn.get_node(node_name)
-            node.add_leak(wn, area=leak_area, start_time=leak_start_time, end_time=leak_end_time)
+        node = wn.get_node(leak_node)
+        node.add_leak(wn, area=leak_area, start_time=leak_start_time, end_time=leak_end_time)
+
+        parameters['leak_info'] = {}
+        parameters['leak_info']['start_time'] = str(leak_start_time)
+        parameters['leak_info']['end_time'] = str(leak_end_time)
+        parameters['leak_info']['start_datetime'] = leak_start_datetime.to_pydatetime()[0].strftime("%Y-%m-%d %H:%M:%S")
+        parameters['leak_info']['leak_area'] = str(leak_area)
+        parameters['leak_info']['leak_diameter'] = str(leak_diameter)
 
     sim = wntr.sim.WNTRSimulator(wn)
     results = sim.run_sim()
@@ -98,6 +112,9 @@ def generate_scenario(is_leak_scenario=False, node_name=None, scenario_name='sce
         periods=(wn.options.time.duration / wn.options.time.hydraulic_timestep) + 1,  # wntr generates 1 extra timestamp
         freq=f'{wn.options.time.hydraulic_timestep}s'
     )
+
+    timestamps_df = timestamps.to_frame()
+    timestamps_df['ix'] = range(0, len(timestamps_df))
 
     pressure = sort_columns(results.node['pressure'])
     pressure.index = timestamps
@@ -129,7 +146,7 @@ def generate_scenario(is_leak_scenario=False, node_name=None, scenario_name='sce
     print(val_pressure)
     print(test_pressure)
 
-    if is_leak_scenario:
+    if is_leak_scenario and leak_node:
         save_scenario(
             f'dataset/leak_scenario/{scenario_name}',
             train_pressure,
@@ -139,6 +156,25 @@ def generate_scenario(is_leak_scenario=False, node_name=None, scenario_name='sce
             train_pressure,
             test_pressure
         )
+        test_start_ix = timestamps_df.loc[test_start]['ix']
+        test_end_ix = timestamps_df.loc[test_end]['ix']
+
+        print(timestamps_df.loc[test_start])
+        print(timestamps_df.loc[test_end])
+
+        print(test_start_ix)
+        print(test_end_ix)
+
+        # Add +1 to the range here since we want to include the time at index test_end_ix
+        labels = [leak_start_ix <= c < leak_end_ix for c in range(test_start_ix, test_end_ix+1)]
+        print(len(labels))
+        labels_timestamps = pd.date_range(start=test_start, end=test_end, freq=f'{wn.options.time.hydraulic_timestep}s')
+        print(labels_timestamps)
+        print(labels)
+
+        labels_series = pd.Series(
+            labels, index=labels_timestamps)
+        labels_series.to_csv(f'dataset/leak_scenario/{scenario_name}/labels.csv')
     else:
         save_scenario(
             f'dataset/regular_scenario/{scenario_name}',
@@ -150,13 +186,19 @@ def generate_scenario(is_leak_scenario=False, node_name=None, scenario_name='sce
             test_pressure
         )
 
+    with open(f'dataset/leak_scenario/{scenario_name}/parameters.ini', 'w') as f:
+        parameters.write(f)
+
     plt.plot(test_pressure[2])
     plt.show()
 
 
 if __name__ == '__main__':
+    config = ConfigParser()
+    config.read('../config.ini')
+
     generate_scenario(
         is_leak_scenario=True,
-        node_name='2',
-        scenario_name='scenario'
+        leak_node='2',
+        scenario_name=config.get('global', 'scenario_name')
     )

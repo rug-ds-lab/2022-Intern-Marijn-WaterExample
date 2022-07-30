@@ -22,9 +22,9 @@ services:
     build: ./producer
     restart: always
     volumes:
-      - ./dataset/:/app/dataset
+      - ./data/:/app/data
       - ./config.ini:/app/config.ini
-      -  /wdn_input_files/:/app/wdn_input_files
+      -  ./wdn_input_files/:/app/wdn_input_files
     depends_on:
       - kafka
       - influxdb

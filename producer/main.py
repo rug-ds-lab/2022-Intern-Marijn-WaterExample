@@ -13,7 +13,7 @@ from configparser import ConfigParser
 KAFKA_SERVER = 'kafka:9092'
 
 
-def read_data_as_matrix(folder_path, network_property):
+def read_leakdb_scenario_as_dataframe(folder_path, network_property):
     network_data = pd.DataFrame()
 
     if network_property == 'Pressures':
@@ -41,46 +41,63 @@ def run():
     config = ConfigParser()
     config.read('config.ini')
     scenario_path = config['producer']['scenario_path']
-    start_time = int(config['producer']['start_time'])
 
-    pressures = read_data_as_matrix(folder_path=scenario_path, network_property='Pressures')
-    flows = read_data_as_matrix(folder_path=scenario_path, network_property='Flows')
-    print(pressures)
+    parameters = ConfigParser()
+    parameters.read(os.path.join(scenario_path, 'parameters.ini'))
+    print(os.path.join(scenario_path, 'parameters.ini'))
+    start_time = config.get('global', 'experiment_start_time')
+    print(start_time)
 
-    timestamp_path = os.path.join(scenario_path, 'Timestamps.csv')
+    labels = pd.read_csv(
+        os.path.join(scenario_path, 'labels.csv'),
+        infer_datetime_format=True,
+        parse_dates=True,
+        index_col=0
+    )
 
-    timestamps = pd.read_csv(timestamp_path)
+    pressures = pd.read_csv(
+        os.path.join(scenario_path, 'pressure', 'test.csv'),
+        infer_datetime_format=True,
+        parse_dates=True,
+        index_col=0
+    )
+    flows = pd.read_csv(
+        os.path.join(scenario_path, 'flow', 'test.csv'),
+        infer_datetime_format=True,
+        parse_dates=True,
+        index_col=0
+    )
 
-    # Scenario 13: Leak Start is at 6587
-    pressures = pressures.iloc[start_time:, :].reset_index(drop=True)
-    flows = flows.iloc[start_time:, :].reset_index(drop=True)
-    timestamps = timestamps.iloc[start_time:, :].reset_index(drop=True)
+    pressures = pressures[start_time:]
+    flows = flows[start_time:]
+
+    timestamps = pressures.index
 
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
-    for p, f in zip(pressures.index, flows.index):
-        current_pressure = pressures.iloc[p]
-        print(timestamps.iloc[p])
+    for t in pressures.index:
+        print(t)
 
-        current_time = datetime\
-            .fromisoformat(timestamps.iloc[p]['Timestamp'])\
-            .timetuple()\
+        current_pressure = pressures.loc[t]
 
-        unix_time = int(mktime(current_time))
+        # current_time = datetime\
+        #     .fromisoformat(timestamps.iloc[p]['Timestamp'])\
+        #     .timetuple()\
 
-        for node in current_pressure.index.astype('int64').sort_values():
+        current_time = t.to_pydatetime()
+        unix_time = int(mktime(current_time.timetuple()))
+
+        for node in current_pressure.index:
             p = Point('measurement')\
                 .tag('node', node)\
                 .field('pressure', current_pressure[node])\
                 .time(unix_time, write_precision='s')
             write_api.write(bucket='primary', record=p)
 
-        current_flow = flows.iloc[f]
+        current_flow = flows.loc[t]
 
-        print(current_flow.index.astype('int64').sort_values())
-
-        for link in current_flow.index.astype('int64').sort_values():
+        for link in current_flow.index:
             p = Point('measurement') \
                 .tag('link', link) \
                 .field('flow', current_flow[link]) \
