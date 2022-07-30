@@ -4,6 +4,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 import pickle
 import json
 import pandas as pd
+from model import load_model
 
 KAFKA_SERVER = 'kafka:9092'
 
@@ -15,14 +16,12 @@ def run():
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
-    with open('model/random_forest_clf_n=5000_s21-300.pkl', 'rb') as f:
-        random_forest_clf = pickle.load(f)
+    model = load_model()
 
     for msg in consumer:
         time = int(json.loads(msg.value.decode('utf-8'))['time'])
         current_pressure = pd.Series(json.loads(msg.value.decode('utf-8'))).drop(labels=['1', 'time']).values
-
-        y_pred = random_forest_clf.predict([current_pressure])
+        y_pred = model.predict([current_pressure])
 
         p = Point('pipeline1') \
             .field('leak_detection', y_pred[0]) \

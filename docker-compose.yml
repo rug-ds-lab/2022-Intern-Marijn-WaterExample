@@ -46,10 +46,14 @@ services:
   pipeline1:
     build: ./pipeline1
     restart: always
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./pipeline1/model/:/app/model
     depends_on:
       - kafka
       - producer
       - influxdb
+      - grafana
     environment:
       PYTHONUNBUFFERED: 1
   pipeline2:
@@ -59,6 +63,7 @@ services:
       - kafka
       - producer
       - influxdb
+      - grafana
     environment:
       PYTHONUNBUFFERED: 1
   kafka-ui:
