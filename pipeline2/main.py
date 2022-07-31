@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow.keras.layers import *
 from tensorflow.keras import Sequential
 from tensorflow.keras.models import load_model
+
 from kafka import KafkaConsumer
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
@@ -10,11 +11,22 @@ import json
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from model import build_model, generate_confidence_interval_bounds, calculate_rmsfe
+from configparser import ConfigParser
+import os
 
 KAFKA_SERVER = 'kafka:9092'
 
 
 def run():
+    config = ConfigParser()
+    config.read('config.ini')
+
+    z_value = config.getfloat('pipeline2', 'z_value')
+    scenario_path = config.get('global', 'scenario_path')
+    sequence_length = config.getint('pipeline2', 'sequence_length')
+    sampling_rate = config.getint('pipeline2', 'sampling_rate')
+
     consumer = KafkaConsumer('flow-data', bootstrap_servers=KAFKA_SERVER)
     print('pipeline2 started')
 
@@ -26,25 +38,18 @@ def run():
         # This standard scaler is fitted to training data only
         standard_scaler = pickle.load(f)
 
-    with open('postprocessing/rmsfe_vector.pkl', 'rb') as f:
-        # The RMSFE values here are calculated based on validation set performance and are used to calculate the CI
-        rmsfe_vector = pickle.load(f)
-
-    model = Sequential()
-    model.add(InputLayer((5, 34)))
-    model.add(LSTM(128, return_sequences=True))
-    model.add(LSTM(64, return_sequences=True))
-    model.add(LSTM(32))
-    model.add(Dense(34, 'linear'))
-
-    model.summary()
-
+    model = build_model()
     model.load_weights('model/')
 
-    sequence_length = 5
+    val_path = os.path.join(scenario_path, 'flow', 'val.csv')
 
-    # This is the amount of time steps before we are at the same time of the day again
-    time_interval = 48
+    rmsfe = calculate_rmsfe(
+        model=model,
+        data_path=val_path,
+        sequence_length=sequence_length,
+        sampling_rate=sampling_rate,
+        std_scaler=standard_scaler
+    )
 
     for msg in consumer:
         time = int(json.loads(msg.value.decode('utf-8'))['time'])
@@ -62,7 +67,7 @@ def run():
 
         print(flow_as_matrix_sorted)
 
-        if flow_as_matrix.shape[0] == sequence_length * time_interval:
+        if flow_as_matrix.shape[0] == sequence_length * sampling_rate:
             last_n_values = flow_as_matrix_sorted.loc[
                 (flow_as_matrix.index.hour == datetime.fromtimestamp(time).hour)
                 & (flow_as_matrix.index.minute == datetime.fromtimestamp(time).minute)]
@@ -72,12 +77,21 @@ def run():
 
             last_n_values_scaled = standard_scaler.transform(last_n_values)
             y_pred = model.predict(np.array([last_n_values_scaled]))
-
             y_pred_unscaled = standard_scaler.inverse_transform(y_pred)
-            y_pred_upper_threshold = standard_scaler.inverse_transform([y_pred[0] + 1.96 * rmsfe_vector])
-            y_pred_lower_threshold = standard_scaler.inverse_transform([y_pred[0] - 1.96 * rmsfe_vector])
 
-            print("Y_PRED: ")
+            lower_threshold, upper_threshold = generate_confidence_interval_bounds(y_pred[0], rmsfe, z_value)
+            lower_threshold_unscaled = standard_scaler.inverse_transform([lower_threshold])
+            upper_threshold_unscaled = standard_scaler.inverse_transform([upper_threshold])
+
+            binary_leak_prediction = any(current_flow[i] > upper_threshold_unscaled[0][i] or
+                                         y_pred_unscaled[0][i] < lower_threshold_unscaled[0][i]
+                                         for i in range(0, len(y_pred_unscaled[0])))
+
+            p = Point('pipeline2') \
+                .field('binary_leak_prediction', binary_leak_prediction) \
+                .time(time, write_precision='s')
+            write_api.write(bucket='primary', record=p)
+
             print(y_pred)
 
             for link_n, flow_value in enumerate(y_pred_unscaled[0]):
@@ -89,13 +103,13 @@ def run():
 
                 p = Point('pipeline2') \
                     .tag('link', str(link_n + 1)) \
-                    .field('flow_prediction_upper_threshold', y_pred_upper_threshold[0][link_n]) \
+                    .field('flow_prediction_lower_threshold', lower_threshold_unscaled[0][link_n]) \
                     .time(time, write_precision='s')
                 write_api.write(bucket='primary', record=p)
 
                 p = Point('pipeline2') \
                     .tag('link', str(link_n + 1)) \
-                    .field('flow_prediction_lower_threshold', y_pred_lower_threshold[0][link_n]) \
+                    .field('flow_prediction_upper_threshold', upper_threshold_unscaled[0][link_n]) \
                     .time(time, write_precision='s')
                 write_api.write(bucket='primary', record=p)
 

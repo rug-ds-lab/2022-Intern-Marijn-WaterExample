@@ -25,6 +25,7 @@ services:
       - ./data/:/app/data
       - ./config.ini:/app/config.ini
       -  ./wdn_input_files/:/app/wdn_input_files
+      - ./dataset:/app/dataset
     depends_on:
       - kafka
       - influxdb
@@ -65,6 +66,9 @@ services:
       - producer
       - influxdb
       - grafana
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./dataset:/app/dataset
     environment:
       PYTHONUNBUFFERED: 1
   kafka-ui:

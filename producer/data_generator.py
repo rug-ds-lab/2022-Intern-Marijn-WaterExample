@@ -148,13 +148,13 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
 
     if is_leak_scenario and leak_node:
         save_scenario(
-            f'dataset/leak_scenario/{scenario_name}',
+            f'../dataset/leak_scenario/{scenario_name}',
             train_pressure,
             val_pressure,
             test_pressure,
             train_flow,
-            train_pressure,
-            test_pressure
+            val_flow,
+            test_flow
         )
         test_start_ix = timestamps_df.loc[test_start]['ix']
         test_end_ix = timestamps_df.loc[test_end]['ix']
@@ -174,19 +174,19 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
 
         labels_series = pd.Series(
             labels, index=labels_timestamps)
-        labels_series.to_csv(f'dataset/leak_scenario/{scenario_name}/labels.csv')
+        labels_series.to_csv(f'../dataset/leak_scenario/{scenario_name}/labels.csv')
     else:
         save_scenario(
-            f'dataset/regular_scenario/{scenario_name}',
+            f'../dataset/regular_scenario/{scenario_name}',
             train_pressure,
             val_pressure,
             test_pressure,
             train_flow,
-            train_pressure,
-            test_pressure
+            val_flow,
+            test_flow
         )
 
-    with open(f'dataset/leak_scenario/{scenario_name}/parameters.ini', 'w') as f:
+    with open(f'../dataset/leak_scenario/{scenario_name}/parameters.ini', 'w') as f:
         parameters.write(f)
 
     plt.plot(test_pressure[2])

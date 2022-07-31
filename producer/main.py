@@ -40,7 +40,7 @@ def run():
 
     config = ConfigParser()
     config.read('config.ini')
-    scenario_path = config['producer']['scenario_path']
+    scenario_path = config['global']['scenario_path']
 
     parameters = ConfigParser()
     parameters.read(os.path.join(scenario_path, 'parameters.ini'))
@@ -71,8 +71,6 @@ def run():
     pressures = pressures[start_time:]
     flows = flows[start_time:]
 
-    timestamps = pressures.index
-
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
@@ -80,13 +78,17 @@ def run():
         print(t)
 
         current_pressure = pressures.loc[t]
-
-        # current_time = datetime\
-        #     .fromisoformat(timestamps.iloc[p]['Timestamp'])\
-        #     .timetuple()\
-
+        current_flow = flows.loc[t]
         current_time = t.to_pydatetime()
+
         unix_time = int(mktime(current_time.timetuple()))
+
+        print(labels.loc[t])
+
+        p = Point('measurement') \
+            .field('leak_ground_truth', bool(labels.loc[t][0])) \
+            .time(unix_time, write_precision='s')
+        write_api.write(bucket='primary', record=p)
 
         for node in current_pressure.index:
             p = Point('measurement')\
@@ -94,8 +96,6 @@ def run():
                 .field('pressure', current_pressure[node])\
                 .time(unix_time, write_precision='s')
             write_api.write(bucket='primary', record=p)
-
-        current_flow = flows.loc[t]
 
         for link in current_flow.index:
             p = Point('measurement') \
@@ -108,11 +108,11 @@ def run():
         pressure_data['time'] = unix_time
         pressure_data_json = pressure_data.to_json()
 
-        producer.send('pressure-data', pressure_data_json.encode('utf-8'))
-
         flow_data = current_flow
         flow_data['time'] = unix_time
         flow_data_json = flow_data.to_json()
+
+        producer.send('pressure-data', pressure_data_json.encode('utf-8'))
 
         producer.send('flow-data', flow_data_json.encode('utf-8'))
 

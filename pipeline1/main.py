@@ -1,3 +1,4 @@
+import numpy as np
 from kafka import KafkaConsumer
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
@@ -22,9 +23,10 @@ def run():
         time = int(json.loads(msg.value.decode('utf-8'))['time'])
         current_pressure = pd.Series(json.loads(msg.value.decode('utf-8'))).drop(labels=['1', 'time']).values
         y_pred = model.predict([current_pressure])
+        y_pred_bool = np.isclose(y_pred, [1.0])[0]
 
         p = Point('pipeline1') \
-            .field('leak_detection', y_pred[0]) \
+            .field('binary_leak_prediction', bool(y_pred_bool)) \
             .time(time, write_precision='s')
         write_api.write(bucket='primary', record=p)
 
