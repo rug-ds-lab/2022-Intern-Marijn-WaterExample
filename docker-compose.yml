@@ -71,6 +71,20 @@ services:
       - ./dataset:/app/dataset
     environment:
       PYTHONUNBUFFERED: 1
+  pipeline3:
+    build: ./pipeline3
+    restart: always
+    depends_on:
+      - kafka
+      - producer
+      - influxdb
+      - grafana
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./dataset:/app/dataset
+      - ./pipeline3/model/:/app/model
+    environment:
+      PYTHONUNBUFFERED: 1
   kafka-ui:
     image: provectuslabs/kafka-ui
     ports:
