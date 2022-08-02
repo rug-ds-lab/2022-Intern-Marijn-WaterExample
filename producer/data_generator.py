@@ -76,7 +76,7 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
     val_end = config.get('producer', 'val_end')
     test_start = config.get('producer', 'test_start')
     test_end = config.get('producer', 'test_end')
-    leak_diameter = config.get('producer', 'leak_diameter')
+    leak_diameter = config.getfloat('producer', 'leak_diameter')
     skip_nodes = json.loads(config.get('producer', 'skip_nodes'))
 
     # We load an input file here which sets many things up already, but most importantly the demand pattern
@@ -86,7 +86,7 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
     wn = wntr.network.WaterNetworkModel('../' + demand_inp_file_path)
 
     if is_leak_scenario and leak_node:
-        leak_diameter = np.random.uniform(0.02, 0.2)
+        leak_diameter = leak_diameter
         leak_area = 3.14159 * (leak_diameter / 2) ** 2
 
         leak_start_time, leak_end_time, leak_start_datetime, leak_start_ix, leak_end_ix = generate_random_leak_time(
@@ -221,5 +221,5 @@ if __name__ == '__main__':
     generate_scenario(
         is_leak_scenario=True,
         leak_node='2',
-        scenario_name='scenario-1'
+        scenario_name='scenario-2'
     )
