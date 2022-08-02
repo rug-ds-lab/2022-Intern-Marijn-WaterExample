@@ -4,7 +4,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 import json
 import pandas as pd
 from configparser import ConfigParser
-from model import initialize_model, load_model, generate_fsm_matrix, generate_binary_leak_prediction
+from model import train_model, load_model, generate_fsm_matrix, generate_binary_leak_prediction
 
 KAFKA_SERVER = 'kafka:9092'
 
@@ -12,23 +12,24 @@ KAFKA_SERVER = 'kafka:9092'
 def run():
     config = ConfigParser()
     config.read('config.ini')
+    water_metric = config.get('pipeline0', 'water_metric')
 
     correlation_threshold = config.getfloat('pipeline0', 'correlation_threshold')
 
-    if config.getboolean('pipeline0', 'initialize_model'):
+    if config.getboolean('pipeline0', 'train_model'):
         print("Initializing model")
-        initialize_model()
+        train_model()
 
     sensitivity_matrix, no_leak_signature = load_model()
-    consumer = KafkaConsumer('pressure-data', bootstrap_servers=KAFKA_SERVER)
-    print('pipeline0 started')
+    consumer = KafkaConsumer(f'{water_metric}-data', bootstrap_servers=KAFKA_SERVER)
+    print('Started')
 
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
     for msg in consumer:
         time = int(json.loads(msg.value.decode('utf-8'))['time'])
-        current_pressure = pd.Series(json.loads(msg.value.decode('utf-8'))).drop(labels=['1', 'time']).values
+        current_pressure = pd.Series(json.loads(msg.value.decode('utf-8'))).drop(labels=['time']).values
         fsm_matrix = generate_fsm_matrix(sensitivity_matrix, no_leak_signature.T, current_pressure)
         binary_leak_prediction = generate_binary_leak_prediction(fsm_matrix, correlation_threshold)
 
@@ -36,8 +37,6 @@ def run():
             .field('binary_leak_prediction', binary_leak_prediction)\
             .time(time, write_precision='s')
         write_api.write(bucket='primary', record=p)
-
-        print(binary_leak_prediction)
 
         for i in range(0, len(fsm_matrix)):
             p = Point('pipeline0')\

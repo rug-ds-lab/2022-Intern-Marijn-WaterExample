@@ -1,16 +1,18 @@
+import pickle
 import pandas as pd
-import tensorflow as tf
 from tensorflow.keras.layers import *
 from tensorflow.keras import Sequential
-from tensorflow.keras.models import load_model
-
-import os
+from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.metrics import RootMeanSquaredError
+from tensorflow.keras.callbacks import ModelCheckpoint
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 
 
-def build_model():
+def build_model(sequence_length):
     model = Sequential()
-    model.add(InputLayer((5, 34)))
+    model.add(InputLayer((sequence_length, 34)))
     model.add(LSTM(128, return_sequences=True))
     model.add(LSTM(64, return_sequences=True))
     model.add(LSTM(32))
@@ -18,6 +20,44 @@ def build_model():
 
     model.summary()
     return model
+
+
+def train_model(model, train_path, val_path, sequence_length, sampling_rate):
+    val = pd.read_csv(
+        val_path,
+        infer_datetime_format=True,
+        parse_dates=True,
+        index_col=0
+    )
+
+    train = pd.read_csv(
+        train_path,
+        infer_datetime_format=True,
+        parse_dates=True,
+        index_col=0
+    )
+
+    std_scaler = StandardScaler()
+    # Fit StandardScaler only on train data, but use it to transform everything
+    train_scaled = std_scaler.fit_transform(train.to_numpy())
+    val_scaled = std_scaler.transform(val.to_numpy())
+
+    X_train, y_train = x_y_from_np_array(train_scaled, train_scaled, sequence_length, sampling_rate)
+    X_val, y_val = x_y_from_np_array(val_scaled, val_scaled, sequence_length, sampling_rate)
+
+    with open('preprocessing/standard_scaler.pkl', 'wb') as f:
+        pickle.dump(std_scaler, f)
+
+    model.compile(
+        loss=MeanSquaredError(),
+        optimizer=Adam(learning_rate=0.002),
+        metrics=[RootMeanSquaredError()]
+    )
+
+    checkpoint = ModelCheckpoint('model/', save_best_only=True, save_weights_only=True,
+                                 monitor='val_root_mean_squared_error')
+
+    model.fit(X_train, y_train, validation_data=(X_val, y_val), epochs=110, callbacks=[checkpoint], batch_size=60)
 
 
 def generate_confidence_interval_bounds(y_pred, rmsfe, z_value):

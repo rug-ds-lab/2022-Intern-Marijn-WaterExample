@@ -113,7 +113,6 @@ def run():
         flow_data_json = flow_data.to_json()
 
         producer.send('pressure-data', pressure_data_json.encode('utf-8'))
-
         producer.send('flow-data', flow_data_json.encode('utf-8'))
 
         producer.flush()

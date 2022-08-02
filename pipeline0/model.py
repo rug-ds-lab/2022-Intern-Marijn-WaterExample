@@ -66,7 +66,7 @@ def generate_sensitivity_matrix(network_path, no_leak_signature):
     return sensitivity_matrix
 
 
-def initialize_model():
+def train_model():
     config = ConfigParser()
     config.read('config.ini')
     wdn_input_file_name = config['global']['wdn_input_file_name']

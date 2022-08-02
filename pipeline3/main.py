@@ -1,5 +1,4 @@
 import os.path
-
 import numpy as np
 from kafka import KafkaConsumer
 from influxdb_client import InfluxDBClient, Point
@@ -8,7 +7,7 @@ import pickle
 import json
 import pandas as pd
 from datetime import datetime
-from model import load_model
+from model import load_model, train_model
 from configparser import ConfigParser
 
 KAFKA_SERVER = 'kafka:9092'
@@ -18,14 +17,19 @@ def run():
     config = ConfigParser()
     config.read('config.ini')
 
+    water_metric = config.get('pipeline3', 'water_metric')
     scenario_path = config.get('global', 'scenario_path')
-    train_path = os.path.join(scenario_path, 'val.csv')
+    train_path = os.path.join(scenario_path, water_metric, 'train.csv')
+    retrain_model = config.get('pipeline3', 'train_model')
 
-    consumer = KafkaConsumer('flow-data', bootstrap_servers=KAFKA_SERVER)
+    consumer = KafkaConsumer(f'{water_metric}-data', bootstrap_servers=KAFKA_SERVER)
     print('pipeline1 started')
 
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
     write_api = client.write_api(write_options=SYNCHRONOUS)
+
+    if retrain_model:
+        train_model(train_path)
 
     model = load_model()
 

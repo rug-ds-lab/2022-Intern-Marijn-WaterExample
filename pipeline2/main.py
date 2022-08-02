@@ -11,7 +11,7 @@ import json
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from model import build_model, generate_confidence_interval_bounds, calculate_rmsfe
+from model import build_model, generate_confidence_interval_bounds, calculate_rmsfe, train_model
 from configparser import ConfigParser
 import os
 
@@ -26,19 +26,29 @@ def run():
     scenario_path = config.get('global', 'scenario_path')
     sequence_length = config.getint('pipeline2', 'sequence_length')
     sampling_rate = config.getint('pipeline2', 'sampling_rate')
+    water_metric = config.get('pipeline2', 'water_metric')
 
-    consumer = KafkaConsumer('flow-data', bootstrap_servers=KAFKA_SERVER)
+    consumer = KafkaConsumer(f'{water_metric}-data', bootstrap_servers=KAFKA_SERVER)
     print('pipeline2 started')
 
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
     write_api = client.write_api(write_options=SYNCHRONOUS)
     query_api = client.query_api()
 
+    retrain_model = config.get('pipeline2', 'train_model')
+
+    train_path = os.path.join(scenario_path, water_metric, 'train.csv')
+    val_path = os.path.join(scenario_path, water_metric, 'val.csv')
+
+    model = build_model(sequence_length)
+
+    if retrain_model:
+        train_model(model, train_path, val_path, sequence_length, sampling_rate)
+
     with open('preprocessing/standard_scaler.pkl', 'rb') as f:
         # This standard scaler is fitted to training data only
         standard_scaler = pickle.load(f)
 
-    model = build_model()
     model.load_weights('model/')
 
     val_path = os.path.join(scenario_path, 'flow', 'val.csv')

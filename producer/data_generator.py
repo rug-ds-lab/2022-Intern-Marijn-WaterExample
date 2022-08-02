@@ -1,3 +1,4 @@
+import json
 import os.path
 import matplotlib.pyplot as plt
 import wntr
@@ -58,9 +59,9 @@ def generate_random_leak_time(simulation_start_time, test_start, test_end, hydra
     return leak_start_time, leak_end_time, leak_start_datetime, leak_start_ix, leak_end_ix
 
 
-def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='scenario'):
-    leak_start_time = 0
-    leak_end_time = 0
+def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='scenario-2'):
+    leak_start_ix = 0
+    leak_end_ix = 0
 
     config = ConfigParser()
     config.read('../config.ini')
@@ -75,7 +76,8 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
     val_end = config.get('producer', 'val_end')
     test_start = config.get('producer', 'test_start')
     test_end = config.get('producer', 'test_end')
-    scenario_name = config.get('global', 'scenario_name')
+    leak_diameter = config.get('producer', 'leak_diameter')
+    skip_nodes = json.loads(config.get('producer', 'skip_nodes'))
 
     # We load an input file here which sets many things up already, but most importantly the demand pattern
     demand_inp_file_path = config.get('producer', 'demand_input_file_path')
@@ -118,6 +120,8 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
 
     pressure = sort_columns(results.node['pressure'])
     pressure.index = timestamps
+
+    pressure.drop(columns=skip_nodes, inplace=True)
 
     flow = sort_columns(results.link['flowrate']) * 3600  # Multiply by 3600 for hourly flow rate
     flow.index = timestamps
@@ -189,7 +193,24 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
     with open(f'../dataset/leak_scenario/{scenario_name}/parameters.ini', 'w') as f:
         parameters.write(f)
 
-    plt.plot(test_pressure[2])
+    fig = plt.plot(test_pressure[2])
+    plt.title('Pressure at node: 2')
+    plt.xlabel('Time')
+    plt.ylabel('Pressure')
+    plt.xticks(rotation=30)
+    plt.tight_layout()
+
+    plt.savefig('pressure_plot.jpg', dpi=200)
+    plt.show()
+
+    fig = plt.plot(test_flow[1])
+    plt.title('Flow at link: 1 - 2')
+    plt.xlabel('Time')
+    plt.ylabel('Flow')
+    plt.xticks(rotation=30)
+    plt.tight_layout()
+
+    plt.savefig('flow_plot.jpg', dpi=200)
     plt.show()
 
 
@@ -200,5 +221,5 @@ if __name__ == '__main__':
     generate_scenario(
         is_leak_scenario=True,
         leak_node='2',
-        scenario_name=config.get('global', 'scenario_name')
+        scenario_name='scenario-1'
     )

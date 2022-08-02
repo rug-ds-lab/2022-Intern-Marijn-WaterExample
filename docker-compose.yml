@@ -51,6 +51,7 @@ services:
     volumes:
       - ./config.ini:/app/config.ini
       - ./pipeline1/model/:/app/model
+      - ./dataset:/app/dataset
     depends_on:
       - kafka
       - producer

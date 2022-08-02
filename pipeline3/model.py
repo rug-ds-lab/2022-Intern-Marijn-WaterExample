@@ -12,7 +12,7 @@ def preprocess(data):
     return df
 
 
-def train_prophet_models(data_path):
+def train_model(data_path):
     data = pd.read_csv(
         data_path,
         infer_datetime_format=True,
@@ -40,4 +40,4 @@ def load_model():
 
 
 if __name__ == '__main__':
-    train_prophet_models('../dataset/leak_scenario/scenario-1/flow/train.csv')
+    train_model('../dataset/leak_scenario/scenario-1/flow/train.csv')
