@@ -31,6 +31,19 @@ services:
       - influxdb
     environment:
       PYTHONUNBUFFERED: 1
+  evaluator:
+    build: ./evaluator
+    restart: always
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./dataset:/app/dataset
+    depends_on:
+      - kafka
+      - producer
+      - influxdb
+      - grafana
+    environment:
+      PYTHONUNBUFFERED: 1
   pipeline0:
     build: ./pipeline0
     restart: always

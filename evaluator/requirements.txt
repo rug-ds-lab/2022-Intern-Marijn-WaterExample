@@ -1,0 +1,5 @@
+kafka-python
+influxdb-client
+pandas
+numpy
+scikit-learn==1.0.2
