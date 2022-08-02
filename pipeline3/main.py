@@ -20,7 +20,7 @@ def run():
     water_metric = config.get('pipeline3', 'water_metric')
     scenario_path = config.get('global', 'scenario_path')
     train_path = os.path.join(scenario_path, water_metric, 'train.csv')
-    retrain_model = config.get('pipeline3', 'train_model')
+    retrain_model = config.getboolean('pipeline3', 'train_model')
 
     consumer = KafkaConsumer(f'{water_metric}-data', bootstrap_servers=KAFKA_SERVER)
     print('pipeline1 started')

@@ -35,7 +35,7 @@ def run():
     write_api = client.write_api(write_options=SYNCHRONOUS)
     query_api = client.query_api()
 
-    retrain_model = config.get('pipeline2', 'train_model')
+    retrain_model = config.getboolean('pipeline2', 'train_model')
 
     train_path = os.path.join(scenario_path, water_metric, 'train.csv')
     val_path = os.path.join(scenario_path, water_metric, 'val.csv')
@@ -68,10 +68,11 @@ def run():
         query = f' from(bucket:"primary") ' \
                 f'|> range(start: {time-sequence_length*24*60*60}, stop: {time})' \
                 f'|> filter(fn: (r) => r._field == "flow")' \
-                f'|> group(columns: ["link"], mode: "by")'
+                f'|> pivot(rowKey:["_time"], columnKey: ["link"], valueColumn: "_value")'
 
         result = query_api.query_data_frame(org='primary', query=query)
-        flow_as_matrix = result.pivot(index='_time', columns='link', values='_value')
+        flow_as_matrix = result.drop(columns=['result', 'table', '_start', '_stop', '_time', '_field', '_measurement'])
+        flow_as_matrix.index = pd.to_datetime(result['_time'])
         flow_as_matrix.columns = flow_as_matrix.columns.astype('int64')
         flow_as_matrix_sorted = flow_as_matrix.reindex(columns=flow_as_matrix.columns.sort_values())
 

@@ -15,8 +15,9 @@ def run():
     water_metric = config.get('pipeline0', 'water_metric')
 
     correlation_threshold = config.getfloat('pipeline0', 'correlation_threshold')
+    retrain_model = config.getboolean('pipeline0', 'train_model')
 
-    if config.getboolean('pipeline0', 'train_model'):
+    if retrain_model:
         print("Initializing model")
         train_model()
 

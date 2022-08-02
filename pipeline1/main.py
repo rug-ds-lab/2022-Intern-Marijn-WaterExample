@@ -17,7 +17,7 @@ def run():
     config.read('config.ini')
 
     water_metric = config.get('pipeline1', 'water_metric')
-    retrain_model = config.get('pipeline1', 'train_model')
+    retrain_model = config.getboolean('pipeline1', 'train_model')
     scenario_path = config.get('global', 'scenario_path')
     train_scenario_path = config.get('pipeline1', 'train_scenario_path')
 
