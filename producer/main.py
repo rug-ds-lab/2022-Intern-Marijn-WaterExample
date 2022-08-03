@@ -1,37 +1,14 @@
 from kafka import KafkaProducer
 import pandas as pd
-import glob
-import re
 import os
 from time import sleep
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
-from datetime import datetime
 from time import mktime
 from configparser import ConfigParser
+from data_generator import generate_scenario
 
 KAFKA_SERVER = 'kafka:9092'
-
-
-def read_leakdb_scenario_as_dataframe(folder_path, network_property):
-    network_data = pd.DataFrame()
-
-    if network_property == 'Pressures':
-        file_name = 'Node_*.csv'
-    elif network_property == 'Flows':
-        file_name = 'Link_*.csv'
-    else:
-        raise Exception('Incorrect property')
-
-    data_path = os.path.join(folder_path, network_property, file_name)
-
-    print(data_path)
-
-    for d in glob.glob(data_path):
-        node_pressure = pd.read_csv(d)['Value']
-        node_n = int(re.sub('\D', '', os.path.basename(d)))
-        network_data[node_n] = node_pressure
-    return network_data.reindex(sorted(network_data.columns), axis=1)
 
 
 def run():
@@ -46,7 +23,19 @@ def run():
     parameters.read(os.path.join(scenario_path, 'parameters.ini'))
     print(os.path.join(scenario_path, 'parameters.ini'))
     start_time = config.get('global', 'experiment_start_time')
+    synthesize_data = config.getboolean('producer', 'synthesize_data')
+    is_leak_scenario = config.getboolean('producer', 'is_leak_scenario')
+    leak_node = config.get('producer', 'leak_node')
+    message_frequency = config.getfloat('global', 'message_frequency')
+    scenario_name = config.get('global', 'scenario_name')
     print(start_time)
+
+    if synthesize_data:
+        generate_scenario(
+            is_leak_scenario,
+            leak_node,
+            scenario_name
+        )
 
     labels = pd.read_csv(
         os.path.join(scenario_path, 'labels.csv'),
@@ -116,7 +105,7 @@ def run():
         producer.send('flow-data', flow_data_json.encode('utf-8'))
 
         producer.flush()
-        sleep(0.5)
+        sleep(message_frequency)
 
 
 if __name__ == '__main__':

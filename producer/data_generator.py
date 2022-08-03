@@ -5,6 +5,29 @@ import wntr
 from configparser import ConfigParser
 import pandas as pd
 import numpy as np
+import re
+import glob
+
+
+def read_leakdb_scenario_as_dataframe(folder_path, network_property):
+    network_data = pd.DataFrame()
+
+    if network_property == 'Pressures':
+        file_name = 'Node_*.csv'
+    elif network_property == 'Flows':
+        file_name = 'Link_*.csv'
+    else:
+        raise Exception('Incorrect property')
+
+    data_path = os.path.join(folder_path, network_property, file_name)
+
+    print(data_path)
+
+    for d in glob.glob(data_path):
+        node_pressure = pd.read_csv(d)['Value']
+        node_n = int(re.sub('\D', '', os.path.basename(d)))
+        network_data[node_n] = node_pressure
+    return network_data.reindex(sorted(network_data.columns), axis=1)
 
 
 def train_val_test_split(data, train_start, train_end, val_start, val_end, test_start, test_end):

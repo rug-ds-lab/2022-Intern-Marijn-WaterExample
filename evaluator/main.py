@@ -12,7 +12,7 @@ KAFKA_SERVER = 'kafka:9092'
 
 
 def compute_performance_metric(y_true, y_pred, metric):
-    performance = metric(y_true.to_numpy(), y_pred.to_numpy())
+    performance = metric(y_true, y_pred)
     print(classification_report(y_true, y_pred))
     return performance
 
@@ -66,6 +66,7 @@ def run():
                 pipeline_predictions.index = predictions_ix
                 # Filtering for None values still needs finetuning
                 pipeline_predictions = pipeline_predictions[pipeline_predictions.notna()].astype(bool)
+                print(pipeline_predictions)
                 ground_truth_prediction_range = ground_truth[pipeline_predictions.index]
                 for metric, metric_name in zip(metrics, metric_names):
                     performance = compute_performance_metric(

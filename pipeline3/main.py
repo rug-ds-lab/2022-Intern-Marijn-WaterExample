@@ -77,10 +77,14 @@ def run():
                 .time(time, write_precision='s')
             write_api.write(bucket='primary', record=p)
 
-            p = Point('pipeline3') \
-                .field('binary_leak_prediction', bool(binary_leak_prediction)) \
-                .time(time, write_precision='s')
-            write_api.write(bucket='primary', record=p)
+        binary_leak_prediction = any(current_flow[i] > upper_bound[i] or
+                                     current_flow[i] < lower_bound[i]
+                                     for i in range(0, len(current_flow)))
+
+        p = Point('pipeline3') \
+            .field('binary_leak_prediction', bool(binary_leak_prediction)) \
+            .time(time, write_precision='s')
+        write_api.write(bucket='primary', record=p)
 
 
 if __name__ == '__main__':

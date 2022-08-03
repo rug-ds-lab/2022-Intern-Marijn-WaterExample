@@ -40,7 +40,7 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 1,
+            "axisSoftMax": 1.01,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -127,7 +127,7 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 1,
+            "axisSoftMax": 1.01,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -214,7 +214,7 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 1,
+            "axisSoftMax": 1.01,
             "axisSoftMin": 0,
             "barAlignment": 0,
             "drawStyle": "line",
@@ -302,7 +302,7 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 1,
+            "axisSoftMax": 1.01,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -343,7 +343,32 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "metric_value accuracy_score"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 9,
@@ -385,13 +410,13 @@
     "list": []
   },
   "time": {
-    "from": "2022-08-03T13:32:29.698Z",
-    "to": "2022-08-03T13:40:07.402Z"
+    "from": "2022-08-03T22:10:42.807Z",
+    "to": "2022-08-03T22:26:15.415Z"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Metrics",
   "uid": "gcqBEfkVk",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
