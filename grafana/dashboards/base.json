@@ -80,35 +80,10 @@
             ]
           }
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "pressure 2"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
-        "h": 17,
+        "h": 16,
         "w": 12,
         "x": 0,
         "y": 0
@@ -194,7 +169,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 17,
+        "h": 16,
         "w": 12,
         "x": 12,
         "y": 0
@@ -283,10 +258,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
+        "h": 16,
         "w": 12,
         "x": 0,
-        "y": 17
+        "y": 16
       },
       "id": 48,
       "options": {
@@ -387,10 +362,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
+        "h": 16,
         "w": 12,
         "x": 12,
-        "y": 17
+        "y": 16
       },
       "id": 49,
       "options": {
@@ -608,124 +583,16 @@
       "type": "timeseries"
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
         "y": 46
       },
-      "id": 16,
-      "panels": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              }
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 24
-          },
-          "id": 26,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "P951FEA4DE68E13C5"
-              },
-              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"flow_prediction\" and r.link == \"21\")",
-              "refId": "A"
-            },
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "P951FEA4DE68E13C5"
-              },
-              "hide": false,
-              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"flow\" and r.link == \"21\")",
-              "refId": "B"
-            }
-          ],
-          "title": "pipeline2 - Flow Prediction",
-          "type": "timeseries"
-        }
-      ],
-      "title": "Examples",
-      "type": "row"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 47
-      },
-      "id": 14,
+      "id": 37,
       "panels": [],
-      "title": "General Network Data",
+      "title": "Leak detection: Binary signals",
       "type": "row"
     },
     {
@@ -771,7 +638,94 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 47
+      },
+      "id": 34,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P951FEA4DE68E13C5"
+          },
+          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"leak_ground_truth\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Leak detection: Ground truth",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "P951FEA4DE68E13C5"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 11,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -788,7 +742,7 @@
               "options": {
                 "mode": "exclude",
                 "names": [
-                  "pressure 2"
+                  "pipeline3 binary_leak_prediction"
                 ],
                 "prefix": "All except:",
                 "readOnly": true
@@ -808,12 +762,12 @@
         ]
       },
       "gridPos": {
-        "h": 17,
-        "w": 12,
+        "h": 8,
+        "w": 24,
         "x": 0,
-        "y": 48
+        "y": 54
       },
-      "id": 2,
+      "id": 4,
       "options": {
         "legend": {
           "calcs": [],
@@ -831,96 +785,11 @@
             "type": "influxdb",
             "uid": "P951FEA4DE68E13C5"
           },
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r.node != \"1\" and r._field == \"pressure\")",
+          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"binary_leak_prediction\")",
           "refId": "A"
         }
       ],
-      "title": "Pressure",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 17,
-        "w": 12,
-        "x": 12,
-        "y": 48
-      },
-      "id": 18,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"flow\")",
-          "refId": "A"
-        }
-      ],
-      "title": "Flow",
+      "title": "All pipelines: Binary leak prediction",
       "type": "timeseries"
     },
     {
@@ -929,9 +798,302 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 65
+        "y": 62
       },
-      "id": 37,
+      "id": 39,
+      "panels": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P951FEA4DE68E13C5"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "stepAfter",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 16,
+            "w": 12,
+            "x": 0,
+            "y": 48
+          },
+          "id": 43,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+              },
+              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline3\" and r._field == \"binary_leak_prediction\")",
+              "refId": "A"
+            }
+          ],
+          "title": "Binary leak prediction: Prophet",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P951FEA4DE68E13C5"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 16,
+            "w": 12,
+            "x": 12,
+            "y": 48
+          },
+          "id": 41,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+              },
+              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline3\" and r._field == \"flow_prediction\")",
+              "refId": "A"
+            }
+          ],
+          "title": "Flow prediction: Prophet",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P951FEA4DE68E13C5"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 30,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineStyle": {
+                  "fill": "solid"
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 15,
+            "w": 12,
+            "x": 0,
+            "y": 64
+          },
+          "id": 45,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+              },
+              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline3\" and r._field == \"flow_prediction_lower_bound\" and r.link == \"3\")",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+              },
+              "hide": false,
+              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline3\" and r._field == \"flow_prediction_upper_bound\" and r.link == \"3\")",
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+              },
+              "hide": false,
+              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"flow\" and r.link == \"3\")",
+              "refId": "C"
+            }
+          ],
+          "title": "Bound example: Prophet",
+          "type": "timeseries"
+        }
+      ],
+      "title": "Pipeline3",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 63
+      },
+      "id": 24,
       "panels": [
         {
           "datasource": {
@@ -976,7 +1138,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -988,12 +1151,12 @@
             "overrides": []
           },
           "gridPos": {
-            "h": 7,
+            "h": 13,
             "w": 24,
             "x": 0,
-            "y": 35
+            "y": 82
           },
-          "id": 34,
+          "id": 22,
           "options": {
             "legend": {
               "calcs": [],
@@ -1011,11 +1174,11 @@
                 "type": "influxdb",
                 "uid": "P951FEA4DE68E13C5"
               },
-              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"leak_ground_truth\")",
+              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline2\" and r._field == \"flow_prediction\")",
               "refId": "A"
             }
           ],
-          "title": "Leak detection: Ground truth",
+          "title": "Flow prediction: LTSM",
           "type": "timeseries"
         },
         {
@@ -1033,7 +1196,7 @@
                 "axisPlacement": "auto",
                 "barAlignment": 0,
                 "drawStyle": "line",
-                "fillOpacity": 11,
+                "fillOpacity": 10,
                 "gradientMode": "none",
                 "hideFrom": {
                   "legend": false,
@@ -1061,7 +1224,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -1070,40 +1234,15 @@
                 ]
               }
             },
-            "overrides": [
-              {
-                "__systemRef": "hideSeriesFrom",
-                "matcher": {
-                  "id": "byNames",
-                  "options": {
-                    "mode": "exclude",
-                    "names": [
-                      "pipeline3 binary_leak_prediction"
-                    ],
-                    "prefix": "All except:",
-                    "readOnly": true
-                  }
-                },
-                "properties": [
-                  {
-                    "id": "custom.hideFrom",
-                    "value": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": true
-                    }
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
           "gridPos": {
-            "h": 8,
-            "w": 24,
+            "h": 14,
+            "w": 12,
             "x": 0,
-            "y": 42
+            "y": 95
           },
-          "id": 4,
+          "id": 32,
           "options": {
             "legend": {
               "calcs": [],
@@ -1121,591 +1260,120 @@
                 "type": "influxdb",
                 "uid": "P951FEA4DE68E13C5"
               },
-              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"binary_leak_prediction\")",
+              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline2\" and r._field == \"binary_leak_prediction\")",
               "refId": "A"
             }
           ],
-          "title": "All pipelines: Binary leak prediction",
+          "title": "Leak prediction: LTSM",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "P951FEA4DE68E13C5"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 18,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 14,
+            "w": 12,
+            "x": 12,
+            "y": 95
+          },
+          "id": 30,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+              },
+              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"flow_prediction_upper_threshold\" and r.link == \"10\")",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+              },
+              "hide": false,
+              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"flow_prediction_lower_threshold\" and r.link == \"10\")",
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "P951FEA4DE68E13C5"
+              },
+              "hide": false,
+              "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"flow\" and r.link == \"10\")",
+              "refId": "C"
+            }
+          ],
+          "title": "Example: Link-10",
           "type": "timeseries"
         }
       ],
-      "title": "Leak detection: Binary signals",
-      "type": "row"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 66
-      },
-      "id": 39,
-      "panels": [],
-      "title": "Pipeline3",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "stepAfter",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 16,
-        "w": 12,
-        "x": 0,
-        "y": 67
-      },
-      "id": 43,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline3\" and r._field == \"binary_leak_prediction\")",
-          "refId": "A"
-        }
-      ],
-      "title": "Binary leak prediction: Prophet",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 16,
-        "w": 12,
-        "x": 12,
-        "y": 67
-      },
-      "id": 41,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline3\" and r._field == \"flow_prediction\")",
-          "refId": "A"
-        }
-      ],
-      "title": "Flow prediction: Prophet",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 30,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 15,
-        "w": 12,
-        "x": 0,
-        "y": 83
-      },
-      "id": 45,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline3\" and r._field == \"flow_prediction_lower_bound\" and r.link == \"3\")",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "hide": false,
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline3\" and r._field == \"flow_prediction_upper_bound\" and r.link == \"3\")",
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "hide": false,
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"flow\" and r.link == \"3\")",
-          "refId": "C"
-        }
-      ],
-      "title": "Bound example: Prophet",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 98
-      },
-      "id": 24,
-      "panels": [],
       "title": "Pipeline2",
       "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 13,
-        "w": 24,
-        "x": 0,
-        "y": 99
-      },
-      "id": 22,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline2\" and r._field == \"flow_prediction\")",
-          "refId": "A"
-        }
-      ],
-      "title": "Flow prediction: LTSM",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 12,
-        "x": 0,
-        "y": 112
-      },
-      "id": 32,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._measurement == \"pipeline2\" and r._field == \"binary_leak_prediction\")",
-          "refId": "A"
-        }
-      ],
-      "title": "Leak prediction: LTSM",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "influxdb",
-        "uid": "P951FEA4DE68E13C5"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 18,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 12,
-        "x": 12,
-        "y": 112
-      },
-      "id": 30,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"flow_prediction_upper_threshold\" and r.link == \"10\")",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "hide": false,
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"flow_prediction_lower_threshold\" and r.link == \"10\")",
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "P951FEA4DE68E13C5"
-          },
-          "hide": false,
-          "query": "from(bucket:\"primary\")\n    |> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)\n    |> filter(fn: (r) => r._field == \"flow\" and r.link == \"10\")",
-          "refId": "C"
-        }
-      ],
-      "title": "Example: Link-10",
-      "type": "timeseries"
     },
     {
       "collapsed": true,
@@ -1713,7 +1381,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 126
+        "y": 64
       },
       "id": 10,
       "panels": [
@@ -1815,7 +1483,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 127
+        "y": 65
       },
       "id": 12,
       "panels": [
@@ -2027,13 +1695,13 @@
     "list": []
   },
   "time": {
-    "from": "2017-12-04T22:00:00.000Z",
-    "to": "2017-12-09T06:00:00.000Z"
+    "from": "2017-12-11T19:30:00.000Z",
+    "to": "2017-12-19T03:30:00.000Z"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Water-Distribution-Network-Overview",
   "uid": "dt8Q4fe7k",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
