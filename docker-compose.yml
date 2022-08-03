@@ -21,15 +21,82 @@ services:
   producer:
     build: ./producer
     restart: always
+    volumes:
+      - ./data/:/app/data
+      - ./config.ini:/app/config.ini
+      -  ./wdn_input_files/:/app/wdn_input_files
+      - ./dataset:/app/dataset
     depends_on:
       - kafka
+      - influxdb
+    environment:
+      PYTHONUNBUFFERED: 1
+  evaluator:
+    build: ./evaluator
+    restart: always
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./dataset:/app/dataset
+    depends_on:
+      - kafka
+      - producer
+      - influxdb
+      - grafana
     environment:
       PYTHONUNBUFFERED: 1
   pipeline0:
     build: ./pipeline0
     restart: always
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./wdn_input_files/:/app/wdn_input_files
+      - ./pipeline0/model/:/app/model
     depends_on:
       - kafka
+      - producer
+      - influxdb
+      - grafana
+    environment:
+      PYTHONUNBUFFERED: 1
+  pipeline1:
+    build: ./pipeline1
+    restart: always
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./pipeline1/model/:/app/model
+      - ./dataset:/app/dataset
+    depends_on:
+      - kafka
+      - producer
+      - influxdb
+      - grafana
+    environment:
+      PYTHONUNBUFFERED: 1
+  pipeline2:
+    build: ./pipeline2
+    restart: always
+    depends_on:
+      - kafka
+      - producer
+      - influxdb
+      - grafana
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./dataset:/app/dataset
+    environment:
+      PYTHONUNBUFFERED: 1
+  pipeline3:
+    build: ./pipeline3
+    restart: always
+    depends_on:
+      - kafka
+      - producer
+      - influxdb
+      - grafana
+    volumes:
+      - ./config.ini:/app/config.ini
+      - ./dataset:/app/dataset
+      - ./pipeline3/model/:/app/model
     environment:
       PYTHONUNBUFFERED: 1
   kafka-ui:
@@ -41,3 +108,28 @@ services:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
       - KAFKA_CLUSTERS_0_ZOOKEEPER=localhost:2181
+  influxdb:
+    image: docker.io/bitnami/influxdb:2
+    ports:
+      - "8086:8086"
+      - "8088:8088"
+    environment:
+      - INFLUXDB_ADMIN_USER_PASSWORD=bitnami123
+      - INFLUXDB_ADMIN_USER_TOKEN=token
+    volumes:
+      - influxdb_data:/bitnami/influxdb
+  grafana:
+    image: docker.io/bitnami/grafana:8
+    ports:
+      - '3000:3000'
+    environment:
+      - 'GF_SECURITY_ADMIN_PASSWORD=bitnami'
+    volumes:
+      - grafana_data:/opt/bitnami/grafana/data
+      - ./grafana/conf/provisioning:/opt/bitnami/grafana/conf/provisioning
+      - ./grafana/dashboards:/opt/bitnami/grafana/dashboards
+volumes:
+  influxdb_data:
+    driver: local
+  grafana_data:
+    driver: local

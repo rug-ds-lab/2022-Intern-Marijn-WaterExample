@@ -1,23 +1,21 @@
 # Leak Detection ECiDA-Vitens
-As of now the repository contains two simple scripts demonstrating how the data generation for the project could be 
-approached. These are very basic at the moment and just serve as an example.
 
 ## Instructions
-Firstly, install the project requirements using the following command:
+Start the application with the following command:
 ```shell
-pip install -r requirements.txt
+docker-compose up -d
 ```
-# Vitens-epynet
-To run the script `epynet_run_sym.py` first the [epynet](https://github.com/Vitens/epynet) tool needs to be installed.
-This can be done using the instructions at the [repository](https://github.com/Vitens/epynet) or by running the shell 
-script `epynet-install.sh`. Then we can simply run:
-
+Data should start flowing into the database, this process can be monitored using Grafana. Grafana can be accessed at:
 ```shell
-python3 epynet_run_sim.py
+http://localhost:3000
 ```
 
-# WNTR
-The [WNTR](https://wntr.readthedocs.io/en/latest/) tool is installed alongside the requirements so we can simply run:
+InfluxDB can also be accessed directly at:
 ```shell
-python3 wntr_run_sim.py
+http://localhost:8086
 ```
+
+### Additional notes
+
+Currently, the `pipeline1` container cannot run after simply cloning from here since it relies on a model file 
+which cannot be committed here due to its size

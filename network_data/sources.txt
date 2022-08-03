@@ -1,5 +1,0 @@
-hanoi_extended.inp: https://github.com/KIOS-Research/CCWI2016/blob/master/benchmarks/asce-tf-wdst/Extended%20Hanoi/Extended%20Hanoi.inp
-hanoi.inp: https://emps.exeter.ac.uk/media/universityofexeter/emps/research/cws/downloads/hanoi.inp
-hanoi_mtp_i.inp: https://repository.tudelft.nl/islandora/object/uuid:aabcc0a3-72c1-4bc0-9176-ef6028b9a6cb/datastream/OBJ/download
-Net3.inp: https://github.com/USEPA/WNTR/blob/main/examples/networks/Net3.inp
-Hanoi_CMH.inp: https://raw.githubusercontent.com/KIOS-Research/LeakDB/master/CCWI-WDSA2018/Dataset_Generator/networks/Hanoi_CMH.inp
