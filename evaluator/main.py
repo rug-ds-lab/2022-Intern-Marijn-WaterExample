@@ -3,18 +3,16 @@ import time
 import os
 import pandas as pd
 from kafka import KafkaConsumer
-from influxdb_client import InfluxDBClient
+from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from configparser import ConfigParser
-from sklearn.metrics import f1_score, classification_report, recall_score, precision_score
+from sklearn.metrics import f1_score, classification_report, recall_score, precision_score, accuracy_score
 
 KAFKA_SERVER = 'kafka:9092'
 
 
 def compute_performance_metric(y_true, y_pred, metric):
     performance = metric(y_true.to_numpy(), y_pred.to_numpy())
-    print(y_true)
-    print(y_pred)
     print(classification_report(y_true, y_pred))
     return performance
 
@@ -57,21 +55,28 @@ def run():
         ground_truth.index = pd.to_datetime(result_ground_truth['_time'])
 
         pipelines = ['pipeline0', 'pipeline1', 'pipeline2', 'pipeline3']
-        metrics = [f1_score, recall_score, precision_score]
+        metrics = [f1_score, recall_score, precision_score, accuracy_score]
+        metric_names = ['f1-score', 'recall-score', 'precision-score', 'accuracy_score']
 
         predictions_ix = pd.to_datetime(result['_time'])
-        ground_truth_prediction_range = ground_truth[predictions_ix]
 
         for pipeline in pipelines:
             if pipeline in result.columns:
                 pipeline_predictions = result[pipeline]
                 pipeline_predictions.index = predictions_ix
                 # Filtering for None values still needs finetuning
-                pipeline_predictions = pipeline_predictions[pipeline_predictions != 'None']
-                for metric in metrics:
+                pipeline_predictions = pipeline_predictions[pipeline_predictions.notna()].astype(bool)
+                ground_truth_prediction_range = ground_truth[pipeline_predictions.index]
+                for metric, metric_name in zip(metrics, metric_names):
                     performance = compute_performance_metric(
                         ground_truth_prediction_range, pipeline_predictions, metric)
-                    print(f'{pipeline}: {metric}: {performance}')
+
+                    print(metric_name)
+
+                    p = Point(pipeline) \
+                        .tag('metric_name', metric_name) \
+                        .field('metric_value', performance)
+                    write_api.write(bucket='primary', record=p)
 
 
 if __name__ == '__main__':
