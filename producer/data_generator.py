@@ -1,6 +1,5 @@
 import json
 import os.path
-import matplotlib.pyplot as plt
 import wntr
 from configparser import ConfigParser
 import pandas as pd
@@ -104,7 +103,6 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
 
     # We load an input file here which sets many things up already, but most importantly the demand pattern
     demand_inp_file_path = config.get('producer', 'demand_input_file_path')
-    print(demand_inp_file_path)
 
     wn = wntr.network.WaterNetworkModel('../' + demand_inp_file_path)
 
@@ -169,10 +167,6 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
         test_end
     )
 
-    print(train_pressure)
-    print(val_pressure)
-    print(test_pressure)
-
     if is_leak_scenario and leak_node:
         save_scenario(
             f'../dataset/leak_scenario/{scenario_name}',
@@ -186,18 +180,9 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
         test_start_ix = timestamps_df.loc[test_start]['ix']
         test_end_ix = timestamps_df.loc[test_end]['ix']
 
-        print(timestamps_df.loc[test_start])
-        print(timestamps_df.loc[test_end])
-
-        print(test_start_ix)
-        print(test_end_ix)
-
         # Add +1 to the range here since we want to include the time at index test_end_ix
         labels = [leak_start_ix <= c < leak_end_ix for c in range(test_start_ix, test_end_ix+1)]
-        print(len(labels))
         labels_timestamps = pd.date_range(start=test_start, end=test_end, freq=f'{wn.options.time.hydraulic_timestep}s')
-        print(labels_timestamps)
-        print(labels)
 
         labels_series = pd.Series(
             labels, index=labels_timestamps)
@@ -215,26 +200,6 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
 
     with open(f'../dataset/leak_scenario/{scenario_name}/parameters.ini', 'w') as f:
         parameters.write(f)
-
-    fig = plt.plot(test_pressure[2])
-    plt.title('Pressure at node: 2')
-    plt.xlabel('Time')
-    plt.ylabel('Pressure')
-    plt.xticks(rotation=30)
-    plt.tight_layout()
-
-    plt.savefig('pressure_plot.jpg', dpi=200)
-    plt.show()
-
-    fig = plt.plot(test_flow[1])
-    plt.title('Flow at link: 1 - 2')
-    plt.xlabel('Time')
-    plt.ylabel('Flow')
-    plt.xticks(rotation=30)
-    plt.tight_layout()
-
-    plt.savefig('flow_plot.jpg', dpi=200)
-    plt.show()
 
 
 if __name__ == '__main__':

@@ -13,7 +13,6 @@ KAFKA_SERVER = 'kafka:9092'
 
 def compute_performance_metric(y_true, y_pred, metric):
     performance = metric(y_true, y_pred)
-    print(classification_report(y_true, y_pred))
     return performance
 
 
@@ -43,7 +42,6 @@ def run():
                            f'|> filter(fn: (r) => r._field == "binary_leak_prediction")' \
                            f'|> pivot(rowKey:["_time"], columnKey: ["_measurement"], valueColumn: "_value")'
         result = query_api.query_data_frame(org='primary', query=prediction_query)
-        print(result.columns)
 
         ground_truth_query = f' from(bucket:"primary") ' \
                              f'|> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)' \
@@ -66,13 +64,10 @@ def run():
                 pipeline_predictions.index = predictions_ix
                 # Filtering for None values still needs finetuning
                 pipeline_predictions = pipeline_predictions[pipeline_predictions.notna()].astype(bool)
-                print(pipeline_predictions)
                 ground_truth_prediction_range = ground_truth[pipeline_predictions.index]
                 for metric, metric_name in zip(metrics, metric_names):
                     performance = compute_performance_metric(
                         ground_truth_prediction_range, pipeline_predictions, metric)
-
-                    print(metric_name)
 
                     p = Point(pipeline) \
                         .tag('metric_name', metric_name) \

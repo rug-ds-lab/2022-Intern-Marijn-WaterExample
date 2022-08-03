@@ -26,7 +26,6 @@ def generate_fsm_matrix(sensitivity_matrix, no_leak_signature, current_pressures
 
 
 def generate_signature(input_network_path, leak_scenario=False, node_name=None):
-    print(f'Simulating leak at node: {node_name}')
     wn = wntr.network.WaterNetworkModel(input_network_path)
     sim_step_seconds = 5
     duration_hours = 0
@@ -77,7 +76,6 @@ def train_model():
 
     with open('model/sensitivity_matrix.pkl', 'wb') as f:
         pickle.dump(sensitivity_matrix, f)
-        print('write s_matrix')
 
     with open('model/no_leak_signature.pkl', 'wb') as f:
         pickle.dump(no_leak_signature.iloc[1:], f)

@@ -29,7 +29,6 @@ def run():
     water_metric = config.get('pipeline2', 'water_metric')
 
     consumer = KafkaConsumer(f'{water_metric}-data', bootstrap_servers=KAFKA_SERVER)
-    print('pipeline2 started')
 
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
     write_api = client.write_api(write_options=SYNCHRONOUS)
@@ -76,15 +75,10 @@ def run():
         flow_as_matrix.columns = flow_as_matrix.columns.astype('int64')
         flow_as_matrix_sorted = flow_as_matrix.reindex(columns=flow_as_matrix.columns.sort_values())
 
-        print(flow_as_matrix_sorted)
-
         if flow_as_matrix.shape[0] == sequence_length * sampling_rate:
             last_n_values = flow_as_matrix_sorted.loc[
                 (flow_as_matrix.index.hour == datetime.fromtimestamp(time).hour)
                 & (flow_as_matrix.index.minute == datetime.fromtimestamp(time).minute)]
-
-            print(f'Current time: {datetime.fromtimestamp(time)}')
-            print(last_n_values)
 
             last_n_values_scaled = standard_scaler.transform(last_n_values)
             y_pred = model.predict(np.array([last_n_values_scaled]))
@@ -102,8 +96,6 @@ def run():
                 .field('binary_leak_prediction', binary_leak_prediction) \
                 .time(time, write_precision='s')
             write_api.write(bucket='primary', record=p)
-
-            print(y_pred)
 
             for link_n, flow_value in enumerate(y_pred_unscaled[0]):
                 p = Point('pipeline2') \

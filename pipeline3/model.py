@@ -33,7 +33,6 @@ def load_model():
     for link_model_path in glob('model/*.pkl'):
         link_n = Path(link_model_path).stem
         with open(link_model_path, 'rb') as f:
-            print(link_model_path)
             link_model = pickle.load(f)
         model[link_n] = link_model
     return model

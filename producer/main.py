@@ -13,7 +13,6 @@ KAFKA_SERVER = 'kafka:9092'
 
 def run():
     producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
-    print('Producer started')
 
     config = ConfigParser()
     config.read('config.ini')
@@ -21,14 +20,13 @@ def run():
 
     parameters = ConfigParser()
     parameters.read(os.path.join(scenario_path, 'parameters.ini'))
-    print(os.path.join(scenario_path, 'parameters.ini'))
+
     start_time = config.get('global', 'experiment_start_time')
     synthesize_data = config.getboolean('producer', 'synthesize_data')
     is_leak_scenario = config.getboolean('producer', 'is_leak_scenario')
     leak_node = config.get('producer', 'leak_node')
     message_frequency = config.getfloat('global', 'message_frequency')
     scenario_name = config.get('global', 'scenario_name')
-    print(start_time)
 
     if synthesize_data:
         generate_scenario(
@@ -71,8 +69,6 @@ def run():
         current_time = t.to_pydatetime()
 
         unix_time = int(mktime(current_time.timetuple()))
-
-        print(labels.loc[t])
 
         p = Point('measurement') \
             .field('leak_ground_truth', bool(labels.loc[t][0])) \
