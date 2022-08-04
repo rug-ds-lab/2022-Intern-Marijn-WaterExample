@@ -1,6 +1,19 @@
 # A tool for Leak Detection in Water Distribution Networks
 
 ## Quick run
+### Data generation
+First, generate a scenario for the RandomForestClassifier to be trained on using the `producer/data_generator.py` script.
+The script is ready to run and will generate a dataset in the folder `dataset/leak_scenario/scenario-2` per default.
+
+Next, make sure that the `config.ini` value `synthesize_dataset` is set to `True` so that a dataset for the experiment is 
+generated upon starting the `docker` containers.
+
+### Model generation
+For each `pipeline` in the `config.ini` file, ensure that `train_model` is set to true so that all models are generated
+and trained upon starting the application.
+
+### Starting the docker containers
+
 Start the application with the following command:
 ```shell
 docker-compose up -d
