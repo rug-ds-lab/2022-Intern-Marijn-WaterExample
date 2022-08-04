@@ -107,7 +107,6 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
     wn = wntr.network.WaterNetworkModel('../' + demand_inp_file_path)
 
     if is_leak_scenario and leak_node:
-        leak_diameter = leak_diameter
         leak_area = 3.14159 * (leak_diameter / 2) ** 2
 
         leak_start_time, leak_end_time, leak_start_datetime, leak_start_ix, leak_end_ix = generate_random_leak_time(
@@ -187,6 +186,9 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
         labels_series = pd.Series(
             labels, index=labels_timestamps)
         labels_series.to_csv(f'../dataset/leak_scenario/{scenario_name}/labels.csv')
+
+        with open(f'../dataset/leak_scenario/{scenario_name}/parameters.ini', 'w') as f:
+            parameters.write(f)
     else:
         save_scenario(
             f'../dataset/regular_scenario/{scenario_name}',
@@ -198,8 +200,8 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
             test_flow
         )
 
-    with open(f'../dataset/leak_scenario/{scenario_name}/parameters.ini', 'w') as f:
-        parameters.write(f)
+        with open(f'../dataset/regular_scenario/{scenario_name}/parameters.ini', 'w') as f:
+            parameters.write(f)
 
 
 if __name__ == '__main__':

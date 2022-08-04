@@ -62,7 +62,6 @@ def run():
             if pipeline in result.columns:
                 pipeline_predictions = result[pipeline]
                 pipeline_predictions.index = predictions_ix
-                # Filtering for None values still needs finetuning
                 pipeline_predictions = pipeline_predictions[pipeline_predictions.notna()].astype(bool)
                 ground_truth_prediction_range = ground_truth[pipeline_predictions.index]
                 for metric, metric_name in zip(metrics, metric_names):
