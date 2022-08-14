@@ -12,7 +12,7 @@ KAFKA_SERVER = 'kafka:9092'
 
 
 def run():
-    producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
+    producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER, api_version=(0, 10, 1))
 
     config = ConfigParser()
     config.read('config.ini')
@@ -22,18 +22,7 @@ def run():
     parameters.read(os.path.join(scenario_path, 'parameters.ini'))
 
     start_time = config.get('global', 'experiment_start_time')
-    synthesize_data = config.getboolean('producer', 'synthesize_data')
-    is_leak_scenario = config.getboolean('producer', 'is_leak_scenario')
-    leak_node = config.get('producer', 'leak_node')
     message_frequency = config.getfloat('global', 'message_frequency')
-    scenario_name = config.get('global', 'scenario_name')
-
-    if synthesize_data:
-        generate_scenario(
-            is_leak_scenario,
-            leak_node,
-            scenario_name
-        )
 
     labels = pd.read_csv(
         os.path.join(scenario_path, 'labels.csv'),

@@ -28,7 +28,7 @@ def run():
     sampling_rate = config.getint('pipeline2', 'sampling_rate')
     water_metric = config.get('pipeline2', 'water_metric')
 
-    consumer = KafkaConsumer(f'{water_metric}-data', bootstrap_servers=KAFKA_SERVER)
+    consumer = KafkaConsumer(f'{water_metric}-data', bootstrap_servers=KAFKA_SERVER, api_version=(0, 10, 1))
 
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
     write_api = client.write_api(write_options=SYNCHRONOUS)

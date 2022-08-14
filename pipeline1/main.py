@@ -25,7 +25,7 @@ def run():
     train_path = os.path.join(train_scenario_path, water_metric, 'test.csv')
     label_path = os.path.join(scenario_path, 'labels.csv')
 
-    consumer = KafkaConsumer(f'{water_metric}-data', bootstrap_servers=KAFKA_SERVER)
+    consumer = KafkaConsumer(f'{water_metric}-data', bootstrap_servers=KAFKA_SERVER, api_version=(0, 10, 1))
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
     write_api = client.write_api(write_options=SYNCHRONOUS)
 
