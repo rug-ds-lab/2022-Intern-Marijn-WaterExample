@@ -20,7 +20,6 @@ services:
       - zookeeper
   producer:
     build: ./producer
-    restart: always
     volumes:
       - ./dataset/:/app/dataset
       - ./config.ini:/app/config.ini
