@@ -22,10 +22,9 @@ services:
     build: ./producer
     restart: always
     volumes:
-      - ./data/:/app/data
+      - ./dataset/:/app/dataset
       - ./config.ini:/app/config.ini
       -  ./wdn_input_files/:/app/wdn_input_files
-      - ./dataset:/app/dataset
     depends_on:
       - kafka
       - influxdb
@@ -46,7 +45,6 @@ services:
       PYTHONUNBUFFERED: 1
   pipeline0:
     build: ./pipeline0
-    restart: always
     volumes:
       - ./config.ini:/app/config.ini
       - ./wdn_input_files/:/app/wdn_input_files
@@ -60,7 +58,6 @@ services:
       PYTHONUNBUFFERED: 1
   pipeline1:
     build: ./pipeline1
-    restart: always
     volumes:
       - ./config.ini:/app/config.ini
       - ./pipeline1/model/:/app/model
@@ -74,7 +71,6 @@ services:
       PYTHONUNBUFFERED: 1
   pipeline2:
     build: ./pipeline2
-    restart: always
     depends_on:
       - kafka
       - producer
@@ -82,12 +78,12 @@ services:
       - grafana
     volumes:
       - ./config.ini:/app/config.ini
+      - ./pipeline2/model/:/app/model
       - ./dataset:/app/dataset
     environment:
       PYTHONUNBUFFERED: 1
   pipeline3:
     build: ./pipeline3
-    restart: always
     depends_on:
       - kafka
       - producer
