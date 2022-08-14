@@ -1,23 +1,35 @@
-# A tool for Leak Detection in Water Distribution Networks
+# A tool for testing various Leak Detection algorithms for Water Distribution Networks
 
 ## Quick run
 ### Data generation
-First, generate a scenario for the RandomForestClassifier to be trained on using the `producer/data_generator.py` script.
-The script is ready to run and will generate a dataset in the folder `dataset/leak_scenario/scenario-2` per default.
+Open a terminal and navigate to the `data_generator` folder using the following command:
 
-Next, make sure that the `config.ini` value `synthesize_dataset` is set to `True` so that a dataset for the experiment is 
-generated upon starting the `docker` containers.
+```shell
+cd data_generator
+```
+From there, run:
+```shell
+docker-compose up
+```
+
+This will populate the `dataset` folder with 10 artificially generated leak scenarios. This takes around 5 minutes. When
+the data is generated the container will automatically exit.
 
 ### Model generation
 For each `pipeline` in the `config.ini` file, ensure that `train_model` is set to true so that all models are generated
-and trained upon starting the application.
+and trained upon starting the application. When cloned directly from the repo, this is always the case. After the first
+run we can set this to `False` to save time when testing with the same scenario.
 
 ### Starting the docker containers
 
 Start the application with the following command:
 ```shell
-docker-compose up -d
+docker-compose up
 ```
+On the first run all models are trained first. `pipeline0` and `pipeline1` train very quickly. The progress of training
+`pipeline2` and `pipeline3` can be monitored by following the output of the corresponding container. As soon as the 
+training finishes, each pipeline starts the leak detection progress.
+
 Data should start flowing into the database, this process can be monitored using Grafana. Grafana can be accessed at:
 ```shell
 http://localhost:3000
