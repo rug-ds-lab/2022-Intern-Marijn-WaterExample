@@ -1,8 +1,9 @@
-data-generator:
-  build: ./
-  volumes:
-    - ../config.ini:/app/config.ini
-    - ../wdn_input_files/:/app/wdn_input_files
-    - ../dataset:/app/dataset
-  environment:
-    PYTHONUNBUFFERED: 1
+services:
+  data-generator:
+    build: ./
+    volumes:
+      - ../config.ini:/app/config.ini
+      - ../wdn_input_files/:/app/wdn_input_files
+      - ../dataset:/app/dataset
+    environment:
+      PYTHONUNBUFFERED: 1
