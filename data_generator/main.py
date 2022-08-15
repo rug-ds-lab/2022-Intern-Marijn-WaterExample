@@ -7,6 +7,8 @@ import numpy as np
 import re
 import glob
 
+DATASET_DIR = 'dataset'
+
 
 def read_leakdb_scenario_as_dataframe(folder_path, network_property):
     network_data = pd.DataFrame()
@@ -86,7 +88,7 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
     leak_end_ix = 0
 
     config = ConfigParser()
-    config.read('../config.ini')
+    config.read('config.ini')
 
     parameters = ConfigParser()
     parameters['producer'] = config['producer']
@@ -104,7 +106,7 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
     # We load an input file here which sets many things up already, but most importantly the demand pattern
     demand_inp_file_path = config.get('producer', 'demand_input_file_path')
 
-    wn = wntr.network.WaterNetworkModel('../' + demand_inp_file_path)
+    wn = wntr.network.WaterNetworkModel(demand_inp_file_path)
 
     if is_leak_scenario and leak_node:
         leak_area = 3.14159 * (leak_diameter / 2) ** 2
@@ -168,7 +170,7 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
 
     if is_leak_scenario and leak_node:
         save_scenario(
-            f'../dataset/leak_scenario/{scenario_name}',
+            f'{DATASET_DIR}/leak_scenario/{scenario_name}',
             train_pressure,
             val_pressure,
             test_pressure,
@@ -185,13 +187,13 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
 
         labels_series = pd.Series(
             labels, index=labels_timestamps)
-        labels_series.to_csv(f'../dataset/leak_scenario/{scenario_name}/labels.csv')
+        labels_series.to_csv(f'{DATASET_DIR}/leak_scenario/{scenario_name}/labels.csv')
 
-        with open(f'../dataset/leak_scenario/{scenario_name}/parameters.ini', 'w') as f:
+        with open(f'{DATASET_DIR}/leak_scenario/{scenario_name}/parameters.ini', 'w') as f:
             parameters.write(f)
     else:
         save_scenario(
-            f'../dataset/regular_scenario/{scenario_name}',
+            f'{DATASET_DIR}/regular_scenario/{scenario_name}',
             train_pressure,
             val_pressure,
             test_pressure,
@@ -200,16 +202,21 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
             test_flow
         )
 
-        with open(f'../dataset/regular_scenario/{scenario_name}/parameters.ini', 'w') as f:
+        with open(f'{DATASET_DIR}/regular_scenario/{scenario_name}/parameters.ini', 'w') as f:
             parameters.write(f)
 
 
 if __name__ == '__main__':
     config = ConfigParser()
-    config.read('../config.ini')
+    config.read('config.ini')
 
-    generate_scenario(
-        is_leak_scenario=True,
-        leak_node='2',
-        scenario_name='scenario-2'
-    )
+    n_scenarios = config.getint('data_generator', 'n_scenarios')
+    leak_node = config.get('data_generator', 'leak_node')
+    is_leak_scenario = config.getboolean('data_generator', 'is_leak_scenario')
+
+    for scenario_n in range(0, n_scenarios):
+        generate_scenario(
+            is_leak_scenario=is_leak_scenario,
+            leak_node=leak_node,
+            scenario_name=f'scenario-{scenario_n}'
+        )

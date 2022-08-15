@@ -22,8 +22,7 @@ def run():
     train_path = os.path.join(scenario_path, water_metric, 'train.csv')
     retrain_model = config.getboolean('pipeline3', 'train_model')
 
-    consumer = KafkaConsumer(f'{water_metric}-data', bootstrap_servers=KAFKA_SERVER)
-    print('pipeline1 started')
+    consumer = KafkaConsumer(f'{water_metric}-data', bootstrap_servers=KAFKA_SERVER, api_version=(0, 10, 1))
 
     client = InfluxDBClient(url='http://influxdb:8086', username='admin', password='bitnami123', org='primary')
     write_api = client.write_api(write_options=SYNCHRONOUS)
@@ -49,15 +48,9 @@ def run():
             link_upper_bound = y_pred_link['yhat_upper'][0]
             link_lower_bound = y_pred_link['yhat_lower'][0]
 
-            print(len(current_flow))
-            print(current_flow)
-
             y_pred.append(link_yhat)
             upper_bound.append(link_upper_bound)
             lower_bound.append(link_lower_bound)
-
-            binary_leak_prediction = flow > link_upper_bound or \
-                                     flow < link_lower_bound
 
             p = Point('pipeline3') \
                 .tag('link', str(link_n + 1)) \
@@ -77,10 +70,14 @@ def run():
                 .time(time, write_precision='s')
             write_api.write(bucket='primary', record=p)
 
-            p = Point('pipeline3') \
-                .field('binary_leak_prediction', bool(binary_leak_prediction)) \
-                .time(time, write_precision='s')
-            write_api.write(bucket='primary', record=p)
+        binary_leak_prediction = any(current_flow[i] > upper_bound[i] or
+                                     current_flow[i] < lower_bound[i]
+                                     for i in range(0, len(current_flow)))
+
+        p = Point('pipeline3') \
+            .field('binary_leak_prediction', bool(binary_leak_prediction)) \
+            .time(time, write_precision='s')
+        write_api.write(bucket='primary', record=p)
 
 
 if __name__ == '__main__':

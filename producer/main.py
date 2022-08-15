@@ -1,42 +1,18 @@
 from kafka import KafkaProducer
 import pandas as pd
-import glob
-import re
 import os
 from time import sleep
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
-from datetime import datetime
 from time import mktime
 from configparser import ConfigParser
+from data_generator import generate_scenario
 
 KAFKA_SERVER = 'kafka:9092'
 
 
-def read_leakdb_scenario_as_dataframe(folder_path, network_property):
-    network_data = pd.DataFrame()
-
-    if network_property == 'Pressures':
-        file_name = 'Node_*.csv'
-    elif network_property == 'Flows':
-        file_name = 'Link_*.csv'
-    else:
-        raise Exception('Incorrect property')
-
-    data_path = os.path.join(folder_path, network_property, file_name)
-
-    print(data_path)
-
-    for d in glob.glob(data_path):
-        node_pressure = pd.read_csv(d)['Value']
-        node_n = int(re.sub('\D', '', os.path.basename(d)))
-        network_data[node_n] = node_pressure
-    return network_data.reindex(sorted(network_data.columns), axis=1)
-
-
 def run():
-    producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER)
-    print('Producer started')
+    producer = KafkaProducer(bootstrap_servers=KAFKA_SERVER, api_version=(0, 10, 1))
 
     config = ConfigParser()
     config.read('config.ini')
@@ -44,9 +20,9 @@ def run():
 
     parameters = ConfigParser()
     parameters.read(os.path.join(scenario_path, 'parameters.ini'))
-    print(os.path.join(scenario_path, 'parameters.ini'))
+
     start_time = config.get('global', 'experiment_start_time')
-    print(start_time)
+    message_frequency = config.getfloat('global', 'message_frequency')
 
     labels = pd.read_csv(
         os.path.join(scenario_path, 'labels.csv'),
@@ -83,8 +59,6 @@ def run():
 
         unix_time = int(mktime(current_time.timetuple()))
 
-        print(labels.loc[t])
-
         p = Point('measurement') \
             .field('leak_ground_truth', bool(labels.loc[t][0])) \
             .time(unix_time, write_precision='s')
@@ -116,7 +90,7 @@ def run():
         producer.send('flow-data', flow_data_json.encode('utf-8'))
 
         producer.flush()
-        sleep(0.5)
+        sleep(message_frequency)
 
 
 if __name__ == '__main__':
