@@ -64,6 +64,7 @@ def run():
         time = int(json.loads(msg.value.decode('utf-8'))['time'])
         current_flow = pd.Series(json.loads(msg.value.decode('utf-8'))).drop(labels=['time']).values
 
+        # Query only as far back as sequence length * the amount of days since this is all the data that is needed
         query = f' from(bucket:"primary") ' \
                 f'|> range(start: {time-sequence_length*24*60*60}, stop: {time})' \
                 f'|> filter(fn: (r) => r._field == "flow")' \
@@ -75,19 +76,24 @@ def run():
         flow_as_matrix.columns = flow_as_matrix.columns.astype('int64')
         flow_as_matrix_sorted = flow_as_matrix.reindex(columns=flow_as_matrix.columns.sort_values())
 
+        # Check if there are enough values to start predictions
         if flow_as_matrix.shape[0] == sequence_length * sampling_rate:
+            # Get all values needed for predictions
             last_n_values = flow_as_matrix_sorted.loc[
                 (flow_as_matrix.index.hour == datetime.fromtimestamp(time).hour)
                 & (flow_as_matrix.index.minute == datetime.fromtimestamp(time).minute)]
 
+            # Scale and predict
             last_n_values_scaled = standard_scaler.transform(last_n_values)
             y_pred = model.predict(np.array([last_n_values_scaled]))
             y_pred_unscaled = standard_scaler.inverse_transform(y_pred)
 
+            # Generate confidence interval bounds
             lower_threshold, upper_threshold = generate_confidence_interval_bounds(y_pred[0], rmsfe, z_value)
             lower_threshold_unscaled = standard_scaler.inverse_transform([lower_threshold])
             upper_threshold_unscaled = standard_scaler.inverse_transform([upper_threshold])
 
+            # Generate binary predictions
             binary_leak_prediction = any(current_flow[i] > upper_threshold_unscaled[0][i] or
                                          y_pred_unscaled[0][i] < lower_threshold_unscaled[0][i]
                                          for i in range(0, len(y_pred_unscaled[0])))

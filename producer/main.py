@@ -6,7 +6,6 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from time import mktime
 from configparser import ConfigParser
-from data_generator import generate_scenario
 
 KAFKA_SERVER = 'kafka:9092'
 

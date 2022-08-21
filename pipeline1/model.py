@@ -5,6 +5,11 @@ import pandas as pd
 
 
 def load_model():
+    """
+    Loads a pre-generated model from disk
+
+    :return: a random forest classifier model
+    """
     config = ConfigParser()
     config.read('config.ini')
 
@@ -14,6 +19,14 @@ def load_model():
 
 
 def train_model(train_path, label_path):
+    """
+    Trains a random forest classifier on a given training set
+
+    :param train_path:
+    :param label_path:
+    :return:
+    """
+
     rfc = RandomForestClassifier()
 
     X_train = pd.read_csv(

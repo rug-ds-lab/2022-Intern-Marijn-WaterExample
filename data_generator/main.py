@@ -11,6 +11,14 @@ DATASET_DIR = 'dataset'
 
 
 def read_leakdb_scenario_as_dataframe(folder_path, network_property):
+    """
+    Reads a scenario using the LeakDB directory structure
+
+    :param folder_path:
+    :param network_property: either flow or pressure
+    :return: dataframe containing pressure or flow data
+    """
+
     network_data = pd.DataFrame()
 
     if network_property == 'Pressures':
@@ -22,7 +30,6 @@ def read_leakdb_scenario_as_dataframe(folder_path, network_property):
 
     data_path = os.path.join(folder_path, network_property, file_name)
 
-    print(data_path)
 
     for d in glob.glob(data_path):
         node_pressure = pd.read_csv(d)['Value']
@@ -32,6 +39,20 @@ def read_leakdb_scenario_as_dataframe(folder_path, network_property):
 
 
 def train_val_test_split(data, train_start, train_end, val_start, val_end, test_start, test_end):
+    """
+    Splits data into a train, validation and test set
+
+    :param data:
+    :param train_start:
+    :param train_end:
+    :param val_start:
+    :param val_end:
+    :param test_start:
+    :param test_end:
+    :return: train: dataframe containing train data, val: dataframe containing val data, test: dataframe containing
+    test data
+    """
+
     train = data[train_start:train_end]
     val = data[val_start:val_end]
     test = data[test_start:test_end]
@@ -39,12 +60,34 @@ def train_val_test_split(data, train_start, train_end, val_start, val_end, test_
 
 
 def train_val_test_to_csv(folder_path, train, val, test):
+    """
+    Saves train, validation and test data as CSV files
+
+    :param folder_path:
+    :param train:
+    :param val:
+    :param test:
+    :return:
+    """
     train.to_csv(os.path.join(folder_path, 'train.csv'))
     val.to_csv(os.path.join(folder_path, 'val.csv'))
     test.to_csv(os.path.join(folder_path, 'test.csv'))
 
 
 def save_scenario(folder_path, train_pressure, val_pressure, test_pressure, train_flow, val_flow, test_flow):
+    """
+    Saves all files corresponding to a simulated scenario
+
+    :param folder_path:
+    :param train_pressure:
+    :param val_pressure:
+    :param test_pressure:
+    :param train_flow:
+    :param val_flow:
+    :param test_flow:
+    :return:
+    """
+
     if not os.path.exists(folder_path):
         os.mkdir(folder_path)
 
@@ -61,22 +104,52 @@ def save_scenario(folder_path, train_pressure, val_pressure, test_pressure, trai
 
 
 def sort_columns(data):
+    """
+    Rearranges a Dataframe based on column names. Assumed here is that the column names are integers.
+
+    :param data:
+    :return:
+    """
+
     data.columns = data.columns.astype('int64')
     data = data.reindex(sorted(data.columns), axis=1)
     return data
 
 
 def generate_random_leak_time(simulation_start_time, test_start, test_end, hydraulic_timestep):
-    # Note that this includes the first point of the test set, but this is good since the leak should not start at t=1
+    """
+    Generates a leak at a random time with a random duration within the test set bounds
+
+    :param simulation_start_time:
+    :param test_start:
+    :param test_end:
+    :param hydraulic_timestep:
+    :return: leak start and end indices in wntr format, timestamp format and simple index format
+    """
+
+    # Generate timestamps for entire scenario
     timestamps = pd.date_range(start=simulation_start_time, end=test_end, freq=f'{hydraulic_timestep}s')
     timestamps_df = timestamps.to_frame()
+
+    # Add corresponding simple indices
     timestamps_df['ix'] = range(0, len(timestamps_df))
+
+    # Take timestamps corresponding to test set
     possible_leak_times = timestamps_df[test_start:test_end]
+
+    # Sample random timestamp for start of leak
     leak_start = possible_leak_times.sample()
+
+    # Get simple index of random of the leak start time
     leak_start_ix = leak_start['ix'].iloc[0]
+
+    # Store datetime format of leak start time
     leak_start_datetime = leak_start.index
+
+    # Generate random end time of leak between leak start and scenario end time
     leak_end_ix = np.random.randint(low=leak_start_ix, high=len(timestamps_df))
 
+    # Convert simple indices to wntr simulation indices by multiplying them by the simulation's hydraulic timestep
     leak_start_time = leak_start_ix * hydraulic_timestep
     leak_end_time = leak_end_ix * hydraulic_timestep
 
@@ -84,6 +157,16 @@ def generate_random_leak_time(simulation_start_time, test_start, test_end, hydra
 
 
 def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='scenario-2'):
+    """
+    Generates flow and pressure data for a water distribution network simulation using the wntr library
+
+    :param is_leak_scenario: whether the scenario should contain a leak or not
+    :param leak_node: which note should contain the leak should there be one
+    :param scenario_name: name of the scenario, which becomes the name of the directory that holds the data
+    :return:
+    """
+
+    # Ensure that these variables are never undefined
     leak_start_ix = 0
     leak_end_ix = 0
 
@@ -109,6 +192,7 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
     wn = wntr.network.WaterNetworkModel(demand_inp_file_path)
 
     if is_leak_scenario and leak_node:
+        # Compute leak area using area of a circle formula
         leak_area = 3.14159 * (leak_diameter / 2) ** 2
 
         leak_start_time, leak_end_time, leak_start_datetime, leak_start_ix, leak_end_ix = generate_random_leak_time(
@@ -137,6 +221,7 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
         freq=f'{wn.options.time.hydraulic_timestep}s'
     )
 
+    # Add datetime format timestamps to the data since it is better for clarity
     timestamps_df = timestamps.to_frame()
     timestamps_df['ix'] = range(0, len(timestamps_df))
 
@@ -148,6 +233,7 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
     flow = sort_columns(results.link['flowrate']) * 3600  # Multiply by 3600 for hourly flow rate
     flow.index = timestamps
 
+    # Split that data into train, validation and test sets
     train_pressure, val_pressure, test_pressure = train_val_test_split(
         pressure,
         train_start,
@@ -168,6 +254,7 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
         test_end
     )
 
+    # Save the generated data
     if is_leak_scenario and leak_node:
         save_scenario(
             f'{DATASET_DIR}/leak_scenario/{scenario_name}',
@@ -187,9 +274,12 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
 
         labels_series = pd.Series(
             labels, index=labels_timestamps)
+
+        # Save labels for leak scenario
         labels_series.to_csv(f'{DATASET_DIR}/leak_scenario/{scenario_name}/labels.csv')
 
         with open(f'{DATASET_DIR}/leak_scenario/{scenario_name}/parameters.ini', 'w') as f:
+            # Save used parameters
             parameters.write(f)
     else:
         save_scenario(
@@ -203,6 +293,7 @@ def generate_scenario(is_leak_scenario=False, leak_node=None, scenario_name='sce
         )
 
         with open(f'{DATASET_DIR}/regular_scenario/{scenario_name}/parameters.ini', 'w') as f:
+            # Save used parameters
             parameters.write(f)
 
 

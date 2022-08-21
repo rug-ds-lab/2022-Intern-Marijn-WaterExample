@@ -7,12 +7,26 @@ from pathlib import Path
 
 
 def preprocess(data):
+    """
+    Massage the data into a form suitable for a Prophet model
+
+    :param data:
+    :return: data in Prophet format
+    """
+
     df = data.reset_index()
     df.set_axis(['ds', 'y'], axis=1, inplace=True)
     return df
 
 
 def train_model(data_path):
+    """
+    Train a prophet model on each column of the data
+
+    :param data_path:
+    :return:
+    """
+
     data = pd.read_csv(
         data_path,
         infer_datetime_format=True,
@@ -29,6 +43,12 @@ def train_model(data_path):
 
 
 def load_model():
+    """
+    Load a folder pre-generated Prophet model from disk
+
+    :return: a dictionary of Prophet models
+    """
+
     model = {}
     for link_model_path in glob('model/*.pkl'):
         link_n = Path(link_model_path).stem
