@@ -12,6 +12,14 @@ KAFKA_SERVER = 'kafka:9092'
 
 
 def compute_performance_metric(y_true, y_pred, metric):
+    """
+    Computes the performance based on a given metric
+
+    :param y_true:
+    :param y_pred:
+    :param metric: metric function
+    :return:
+    """
     if metric == accuracy_score:
         performance = metric(y_true, y_pred)
     else:
@@ -28,21 +36,24 @@ def run():
     query_api = client.query_api()
 
     while True:
+        # Compute performance every two seconds
         time.sleep(2)
+
+        # Query all generated predictions from database
         prediction_query = f' from(bucket:"primary") ' \
                            f'|> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)' \
                            f'|> filter(fn: (r) => r._field == "binary_leak_prediction")' \
                            f'|> pivot(rowKey:["_time"], columnKey: ["_measurement"], valueColumn: "_value")'
         result = query_api.query_data_frame(org='primary', query=prediction_query)
 
+        # Query saved ground truths from database
         ground_truth_query = f' from(bucket:"primary") ' \
                              f'|> range(start: 2017-01-01T00:00:00Z, stop: 2017-12-31T12:00:00Z)' \
                              f'|> filter(fn: (r) => r._field == "leak_ground_truth")' \
                              f'|> pivot(rowKey:["_time"], columnKey: ["_measurement"], valueColumn: "_value")'
         result_ground_truth = query_api.query_data_frame(org='primary', query=ground_truth_query)
 
-
-
+        # Define constants
         pipelines = ['pipeline0', 'pipeline1', 'pipeline2', 'pipeline3']
         metrics = [f1_score, recall_score, precision_score, accuracy_score]
         metric_names = ['f1-score', 'recall-score', 'precision-score', 'accuracy_score']
@@ -53,6 +64,7 @@ def run():
 
             predictions_ix = pd.to_datetime(result['_time'])
 
+            # Compute all metrics for all pipelines
             for pipeline in pipelines:
                 if pipeline in result.columns:
                     pipeline_predictions = result[pipeline]
@@ -63,6 +75,7 @@ def run():
                         performance = compute_performance_metric(
                             ground_truth_prediction_range, pipeline_predictions, metric)
 
+                        # Save value to database
                         p = Point(pipeline) \
                             .tag('metric_name', metric_name) \
                             .field('metric_value', performance)
