@@ -57,6 +57,15 @@ of pipes.
 There is already a great body of research dedicated to the challenge of detecting these leaks automatically. 
 The tool at hand provides a way to experiment with different methods of leak detection with synthesized data.
 
+# Model Overview
+
+| Name      | Model name               | Model type       | Time series compatible | Leak localization | Output             | Thresholding method |
+|-----------|--------------------------|------------------|------------------------|-------------------|--------------------|---------------------|
+| pipeline0 | Fault Sensitivity Matrix | Statistical      | No                     | Yes               | Correlation matrix | Static scaler       |
+| pipeline1 | Random Forest Classifier | Machine Learning | No                     | No                | Binary label       | Non-applicable      |
+| pipeline2 | LSTM Neural Network      | Deep Learning    | Yes                    | Yes               | Flow predictions   | Confidence interval |
+| pipeline3 | Facebook Prophet         | Statistical      | Yes                    | Yes               | Flow predictions   | Confidence interval |
+
 # Architecture Overview
 
 The tool uses a number of `docker` containers which communicate with each other in different ways. A visual overview of
